@@ -1,25 +1,34 @@
-import java.util.Set;
+import java.util.List;
 
 public class User {
-    private String userId;
-    private String userName;
-    private Set<String> likedMovieIds;
+    private final String name;
+    private final String userId;
+    private final List<String> likedMovieIds;
+    private List<String> recommendedMovies; // Added field for recommended movies
 
-    public User(String userId, String userName, Set<String> likedMovieIds) {
+    public User(String name, String userId, List<String> likedMovieIds) {
+        this.name = name;
         this.userId = userId;
-        this.userName = userName;
         this.likedMovieIds = likedMovieIds;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String getUserId() {
         return userId;
     }
 
-    public String getUserName() {
-        return userName;
+    public List<String> getLikedMovieIds() {
+        return likedMovieIds;
     }
 
-    public Set<String> getLikedMovieIds() {
-        return likedMovieIds;
+    public List<String> getRecommendedMovies() {
+        return recommendedMovies;
+    }
+
+    public void setRecommendedMovies(List<String> recommendedMovies) {
+        this.recommendedMovies = recommendedMovies;
     }
 }

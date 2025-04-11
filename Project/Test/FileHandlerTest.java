@@ -1,36 +1,25 @@
-import org.junit.jupiter.api.Test;
-
-import java.io.*;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import java.io.File;
+import java.util.List;
 
 public class FileHandlerTest {
 
-    private FileHandler fileHandler = new FileHandler();
-
     @Test
-    public void testReadMovies() throws IOException {
-        List<Movie> movies = fileHandler.readMovies("movies.txt");
-        assertNotNull(movies);
-        assertFalse(movies.isEmpty());
+    public void testReadFile() {
+        FileHandler fileHandler = new FileHandler();
+        List<String> lines = fileHandler.readFile("test_movies.txt");
+        assertNotNull(lines);
+        assertTrue(lines.size() > 0);
     }
 
     @Test
-    public void testReadUsers() throws IOException {
-        List<User> users = fileHandler.readUsers("users.txt");
-        assertNotNull(users);
-        assertFalse(users.isEmpty());
-    }
+    public void testWriteFile() {
+        FileHandler fileHandler = new FileHandler();
+        fileHandler.writeFile("test_output.txt", List.of("Movie1", "Movie2", "Movie3"));
 
-    @Test
-    public void testWriteToFile() throws IOException {
-        String output = "User1, U001, Movie1, Movie2";
-        fileHandler.writeToFile("Recommendations.txt", output);
-
-        try (BufferedReader reader = new BufferedReader(new FileReader("Recommendations.txt"))) {
-            String line = reader.readLine();
-            assertEquals(output, line);
-        }
+        File file = new File("test_output.txt");
+        assertTrue(file.exists());
+        assertTrue(file.length() > 0);
     }
 }

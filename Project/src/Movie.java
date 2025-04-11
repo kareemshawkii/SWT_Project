@@ -1,25 +1,27 @@
+import java.util.List;
+
 public class Movie {
-    private String movieId;
-    private String title;
-    private String[] genres;
+    private final String title;
+    private final String movieId;
+    private final List<String> genres;
 
-    // Constructor
-    public Movie(String movieId, String title, String[] genres) {
-        this.movieId = movieId;
+    public Movie(String title, String movieId, List<String> genres) {
         this.title = title;
+        this.movieId = movieId;
         this.genres = genres;
-    }
-
-    // Getters
-    public String getMovieId() {
-        return movieId;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public String[] getGenres() {
+    public String getMovieId() {
+        return movieId;
+    }
+
+    public List<String> getGenres() {
         return genres;
     }
 }
+
+

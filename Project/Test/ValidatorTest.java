@@ -1,66 +1,38 @@
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 public class ValidatorTest {
 
-    private Validator validator = new Validator();
-
     @Test
-    public void testValidMovieTitle() {
-        Movie movie = new Movie("ABC123", "The Matrix", new String[]{"Action", "Sci-Fi"});
-        String validationMessage = validator.validateMovie(movie);
-        assertNull(validationMessage);
+    public void testValidateMovieTitle() {
+        assertTrue(Validator.validateTitle("The Matrix"));
+        assertFalse(Validator.validateTitle("the matrix"));
+        assertFalse(Validator.validateTitle("The matrix"));
     }
 
     @Test
-    public void testInvalidMovieTitle() {
-        Movie movie = new Movie("ABC123", "the matrix", new String[]{"Action", "Sci-Fi"});
-        String validationMessage = validator.validateMovie(movie);
-        assertNotNull(validationMessage);  // Movie title is invalid (not capitalized)
+    public void testValidateMovieId() {
+        HashSet<String> existingIds = new HashSet<>();
+        existingIds.add("THE001");
+        assertTrue(Validator.validateMovieId("THE123", "The Matrix", existingIds));
+        assertFalse(Validator.validateMovieId("THE123", "The Matrix", existingIds)); // Duplicate ID
     }
 
     @Test
-    public void testValidMovieId() {
-        Movie movie = new Movie("ABC123", "The Matrix", new String[]{"Action", "Sci-Fi"});
-        String validationMessage = validator.validateMovie(movie);
-        assertNull(validationMessage);
+    public void testValidateUserName() {
+        assertTrue(Validator.validateUserName("John Doe"));
+        assertFalse(Validator.validateUserName("John123"));
+        assertFalse(Validator.validateUserName(" John"));
     }
 
     @Test
-    public void testInvalidMovieId() {
-        Movie movie = new Movie("AB123", "The Matrix", new String[]{"Action", "Sci-Fi"});
-        String validationMessage = validator.validateMovie(movie);
-        assertNotNull(validationMessage);  // Movie ID is invalid
-    }
-
-    @Test
-    public void testValidUserName() {
-        User user = new User("U001", "John Doe", new HashSet<>());
-        String validationMessage = validator.validateUser(user);
-        assertNull(validationMessage);  // Valid user
-    }
-
-    @Test
-    public void testInvalidUserName() {
-        User user = new User("U001", "John123", new HashSet<>());
-        String validationMessage = validator.validateUser(user);
-        assertNotNull(validationMessage);  // Invalid user name (contains digits)
-    }
-
-    @Test
-    public void testValidUserId() {
-        User user = new User("12345678A", "John Doe", new HashSet<>());
-        String validationMessage = validator.validateUser(user);
-        assertNull(validationMessage);  // Valid user ID
-    }
-
-    @Test
-    public void testInvalidUserId() {
-        User user = new User("12345", "John Doe", new HashSet<>());
-        String validationMessage = validator.validateUser(user);
-        assertNotNull(validationMessage);  // Invalid user ID (too short)
+    public void testValidateUserId() {
+        HashSet<String> existingIds = new HashSet<>();
+        existingIds.add("123456789A");
+        assertTrue(Validator.validateUserId("123456789B", existingIds));
+        assertFalse(Validator.validateUserId("12345", existingIds)); // Invalid length
+        assertFalse(Validator.validateUserId("123456789", existingIds)); // Invalid format
     }
 }
