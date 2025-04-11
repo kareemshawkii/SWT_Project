@@ -47,12 +47,16 @@ public class ValidatorTest {
     @Test
     public void testValidateUserId() {
         HashSet<String> existingIds = new HashSet<>();
-        existingIds.add("123456789B");
-        existingIds.add("123456789A");
-        assertFalse(Validator.validateUserId("123456789B", existingIds));
+        existingIds.add("123456789");
+        existingIds.add("12345679A");
+        assertFalse(Validator.validateUserId("123456789B", existingIds)); // Invalid length
         assertFalse(Validator.validateUserId("12345", existingIds)); // Invalid length
-        assertFalse(Validator.validateUserId("123456789", existingIds)); // Invalid format
-        assertFalse(Validator.validateUserId("123456789A", existingIds)); // Invalid format
+//        assertTrue(Validator.validateUserId("123456789", existingIds)); //ERROR
+        assertFalse(Validator.validateUserId("123456789A", existingIds)); // Invalid length
+        assertFalse(Validator.validateUserId("123456789", existingIds)); // existing id
+        assertTrue(Validator.validateUserId("12345678A", existingIds)); //true
+        assertFalse(Validator.validateUserId("12345678", existingIds)); // Invalid length
+        assertFalse(Validator.validateUserId("12345679A", existingIds)); // not unique
 
     }
 }
