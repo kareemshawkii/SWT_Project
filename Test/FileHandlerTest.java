@@ -24,26 +24,26 @@ class FileHandlerTest {
     @Test
     void readUsersFileTest() {
         List<String> expected = Arrays.asList("Hassan Ali, 12345678X", "TSR001, TDK003", "Ali Mohamed, 87654321W", "TG002");
-        assertEquals(expected, fileHandler.readFile("Project/users.txt"));
+        assertEquals(expected, fileHandler.readFile("D://Documents//GitHub//SWT_Project//users.txt"));
     }
 
     @Test
     void readRecommendationsFileTest() {
         List<String> expected = Arrays.asList("Hassan Ali,12345678X", "The Dark Knight,The Godfather", "Ali Mohamed,87654321W", "The Dark Knight");
-        assertEquals(expected, fileHandler.readFile("Project/recommendations.txt"));
+        assertEquals(expected, fileHandler.readFile("D://Documents//GitHub//SWT_Project//recommendations.txt"));
     }
 
     @Test
     void readMoviesFileTest() {
         List<String> expected = Arrays.asList("The Shawshank Redemption, TSR001", "Drama", "The Godfather, TG002", "Crime, Drama", "The Dark Knight, TDK003", "Action, Crime, Drama");
-        assertEquals(expected, fileHandler.readFile("Project/movies.txt"));
+        assertEquals(expected, fileHandler.readFile("D://Documents//GitHub//SWT_Project//movies.txt/"));
     }
 
 
     @Test
     void writeFileTest() {
         // Step 1: Define the path and test content
-        String testFilePath = "Project/testOutput.txt";
+        String testFilePath = "testOutput.txt";
         List<String> linesToWrite = Arrays.asList(
                 "Line 1: Hello, world!",
                 "Line 2: Testing file writing",
