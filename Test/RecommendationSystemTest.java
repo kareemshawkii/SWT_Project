@@ -150,16 +150,70 @@ public class RecommendationSystemTest {
      */
     @Test
     public void testWriteRecommendations() {
-        recommendationSystem.loadData("movies.txt", "users.txt");
-        recommendationSystem.validateData();
-        recommendationSystem.generateRecommendations();
+        FileHandler fileHandler1 = new FileHandler(); // M7TAGEEN MOCKUP
+        RecommendationSystem recommendationSystem1 = new RecommendationSystem(); // Valid case
 
-        // Write output to file
-        recommendationSystem.writeRecommendations("recommendations.txt");
+        List<String> expectedOutput1 = Arrays.asList("Hassan Ali,12345678X", "The Godfather", "Ali Mohamed,87654321W", "The Shawshank Redemption, The Dark Knight");
+        recommendationSystem1.loadData("movies.txt", "users.txt");
+        recommendationSystem1.validateData();
+        recommendationSystem1.generateRecommendations();
+        recommendationSystem1.writeRecommendations("recommendations.txt");
+        assertEquals(expectedOutput1,fileHandler1.readFile("recommendations.txt"));
+//*//
+        FileHandler fileHandler2 = new FileHandler(); // M7TAGEEN MOCKUP
+        RecommendationSystem recommendationSystem2 = new RecommendationSystem(); // First file is invalid
+        recommendationSystem1.loadData("movies.txt", "users.txt");
+        recommendationSystem1.validateData();
+        recommendationSystem1.generateRecommendations();
+
+        //expectedOutput2
+        RecommendationSystem recommendationSystem3 = new RecommendationSystem(); // Second file is invalid
+        //expectedOutput3
+        RecommendationSystem recommendationSystem4 = new RecommendationSystem(); // Both files are invalid
+        //expectedOutput4
+        RecommendationSystem recommendationSystem5 = new RecommendationSystem(); // Both files are invalid
+        //expectedOutput5
+
+        //*//
+        RecommendationSystem recommendationSystem6 = new RecommendationSystem(); // users with no liked movies
+        //expectedOutput6
+        RecommendationSystem recommendationSystem7 = new RecommendationSystem(); // users that liked all existing movies in the movies file
+        //expectedOutput7
+        RecommendationSystem recommendationSystem8 = new RecommendationSystem(); // Invalid movie format
+        //expectedOutput8
+        RecommendationSystem recommendationSystem9 = new RecommendationSystem(); // Empty movie name
+        //expectedOutput9
+        RecommendationSystem recommendationSystem10 = new RecommendationSystem(); // Empty movie id
+        //expectedOutput10
+        RecommendationSystem recommendationSystem11 = new RecommendationSystem(); // Invalid user format
+        //expectedOutput11
+        RecommendationSystem recommendationSystem12 = new RecommendationSystem(); // Empty user name
+        //expectedOutput12
+        RecommendationSystem recommendationSystem13 = new RecommendationSystem(); // Empty user id
+        //expectedOutput13
+        RecommendationSystem recommendationSystem14 = new RecommendationSystem(); // Duplicate movie id
+        //expectedOutput14
+        RecommendationSystem recommendationSystem15 = new RecommendationSystem(); // Duplicate user id
+        //expectedOutput15
+        // The difference between the following test case and case 6 that here the user liked all related genres but not all the movies in the file
+        RecommendationSystem recommendationSystem16 = new RecommendationSystem(); // No recommendations when all genre-matching movies are already liked.
+        //expectedOutput16
+        RecommendationSystem recommendationSystem17 = new RecommendationSystem(); // Another valid case
+        //expectedOutput17
+        RecommendationSystem recommendationSystem18 = new RecommendationSystem(); // Another valid case
+        //expectedOutput18
+        RecommendationSystem recommendationSystem19 = new RecommendationSystem(); // Another valid case
+        //expectedOutput19
+
+
+
+
+
+
 
         File file = new File("recommendations.txt");
-        assertTrue(file.exists(), "Output file should exist.");
-        assertTrue(file.length() > 0, "Output file should not be empty.");
+        assertTrue(file.exists());
+        assertTrue(file.length() > 0);
     }
 }
 
