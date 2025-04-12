@@ -38,21 +38,6 @@ public class RecommendationSystemTest {
      * @param userFile Path to the users file.
      * @param expectRecommendations Whether recommendations are expected.
      */
-    private void runRecommendationUnitTest(List<Movie> movies, List<User> users, boolean expectRecommendations) {
-        RecommendationSystem rs = new RecommendationSystem();
-        rs.setMovies(movies);
-        rs.setUsers(users);
-        rs.generateRecommendations();
-
-        for (User user : rs.getUsers()) {
-            if (expectRecommendations) {
-                assertNotNull(user.getRecommendedMovies());
-                assertTrue(user.getRecommendedMovies().size() > 0);
-            } else {
-                assertTrue(user.getRecommendedMovies() == null || user.getRecommendedMovies().isEmpty());
-            }
-        }
-    }
 
 
     /**
@@ -64,50 +49,75 @@ public class RecommendationSystemTest {
      */
     @Test
     public void testGenerateRecommendations() {
-        List<String> genres1 = Arrays.asList("Sci-Fi","Action");
+        List<String> genres1 = Arrays.asList("Sci-Fi", "Action");
         List<String> genres2 = Arrays.asList("Sci-Fi", "Drama");
         List<String> genres3 = Arrays.asList("Crime", "Drama");
         List<String> genres4 = Arrays.asList("Comedy");
         List<String> genres5 = Arrays.asList("Horror", "Thriller");
+        List<String> genres6 = Arrays.asList("Action", "Crime", "Drama");
+        List<String> genres7 = Arrays.asList("Drama", "Crime");
 
         Movie m1 = new Movie("Inception", "I123", genres1);
         Movie m2 = new Movie("Interstellar", "I234", genres2);
         Movie m3 = new Movie("The Godfather", "TG001", genres3);
         Movie m4 = new Movie("The Hangover", "TH111", genres4);
         Movie m5 = new Movie("The Conjuring", "TC999", genres5);
+        Movie m6 = new Movie("The Dark Knight", "TDK003", genres6);
+        Movie m7 = new Movie("The Shawshank Redemption", "TSR001", genres7);
 
-        List<Movie> movieList = Arrays.asList(m1, m2, m3, m4, m5);
+        List<Movie> movieList = Arrays.asList(m1, m2, m3, m4, m5, m6, m7);
 
-        // Case 1: User likes Sci-Fi movie (should get "The Godfather" as a rec)
-        User u1 = new User("John", "12345678X", Arrays.asList("I123"));
+        User u1 = new User("John", "12345678X", Arrays.asList("I123"));  // Sci-Fi, Action
+        User u2 = new User("Ali", "87654321A", Arrays.asList("I123", "I234", "TG001", "TH111", "TC999")); // All except m6, m7
+        User u3 = new User("Nada", "123456789", new ArrayList<>()); // No likes
+        User u4 = new User("Mona", "098765432", Arrays.asList("TG001")); // Drama, Crime
+        User u5 = new User("Tamer", "135790246", Arrays.asList("TC999")); // Horror, Thriller
+        User u6 = new User("Hassan Ali", "12345678X", Arrays.asList("TDK003", "TSR001")); // Action, Crime, Drama
+        User u7 = new User("Ali Mohamed", "87654321W", Arrays.asList("TG001")); // Drama, Crime
 
-        // Case 2: User likes all available movies (should get no recommendations)
-        User u2 = new User("Ali", "87654321A", Arrays.asList("I123", "I234", "TG001", "TH111", "TC999"));
+        List<User> users = Arrays.asList(u1, u2, u3, u4, u5, u6, u7);
 
-        // Case 3: User likes no movies (should get no recommendations)
-        User u3 = new User("Nada", "123456789", new ArrayList<>());
+        RecommendationSystem rs = new RecommendationSystem();
+        rs.setMovies(movieList);
+        rs.setUsers(users);
+        rs.generateRecommendations();
 
-        // Case 4: User likes only Drama (should get Sci-Fi/Action movie)
-        User u4 = new User("Mona", "098765432", Arrays.asList("TG001"));
+        // u1: Likes Inception (Sci-Fi, Action) -> Recommend Interstellar, Dark Knight
+        assertTrue(u1.getRecommendedMovies().contains("Interstellar"));
+        assertTrue(u1.getRecommendedMovies().contains("The Dark Knight"));
+        assertEquals(2, u1.getRecommendedMovies().size());
 
-        // Case 5: User likes Horror (should get something else)
-        User u5 = new User("Tamer", "135790246", Arrays.asList("TC999"));
+        // u2: Likes all movies except m6, m7 => Genres: Sci-Fi, Action, Drama, Crime, Comedy, Horror, Thriller
+        // m6 and m7 share genres, so recommend both
+        assertTrue(u2.getRecommendedMovies().contains("The Dark Knight"));
+        assertTrue(u2.getRecommendedMovies().contains("The Shawshank Redemption"));
+        assertEquals(2, u2.getRecommendedMovies().size());
 
-        // Test case 1: One recommendation expected
-        runRecommendationUnitTest(movieList, Arrays.asList(u1), true);
+        // u3: Likes nothing -> Recommend nothing
+        assertTrue(u3.getRecommendedMovies().isEmpty());
 
-        // Test case 2: No recommendations (liked everything)
-        runRecommendationUnitTest(movieList, Arrays.asList(u2), false);
+        // u4: Likes Godfather (Crime, Drama) -> Recommend Interstellar, Dark Knight, Shawshank
+        assertTrue(u4.getRecommendedMovies().contains("Interstellar"));
+        assertTrue(u4.getRecommendedMovies().contains("The Dark Knight"));
+        assertTrue(u4.getRecommendedMovies().contains("The Shawshank Redemption"));
+        assertEquals(3, u4.getRecommendedMovies().size());
 
-        // Test case 3: No recommendations (liked nothing)
-        runRecommendationUnitTest(movieList, Arrays.asList(u3), false);
+        // u5: Likes The Conjuring (Horror, Thriller) -> No other movie shares these genres
+        assertTrue(u5.getRecommendedMovies().isEmpty());
 
-        // Test case 4: Should get Sci-Fi/Action (e.g., Inception)
-        runRecommendationUnitTest(movieList, Arrays.asList(u4), true);
+        // u6: Likes Dark Knight & Shawshank (Action, Crime, Drama) -> Recommend Godfather, Interstellar, Inception
+        assertTrue(u6.getRecommendedMovies().contains("The Godfather"));
+        assertTrue(u6.getRecommendedMovies().contains("Interstellar"));
+        assertTrue(u6.getRecommendedMovies().contains("Inception"));
+        assertEquals(3, u6.getRecommendedMovies().size());
 
-        // Test case 5: Should get something that's not Horror/Thriller
-        runRecommendationUnitTest(movieList, Arrays.asList(u5), true);
+        // u7: Likes Godfather (Drama, Crime) -> Recommend Interstellar, Dark Knight, Shawshank
+        assertTrue(u7.getRecommendedMovies().contains("Interstellar"));
+        assertTrue(u7.getRecommendedMovies().contains("The Dark Knight"));
+        assertTrue(u7.getRecommendedMovies().contains("The Shawshank Redemption"));
+        assertEquals(3, u7.getRecommendedMovies().size());
     }
+
 
 
 
