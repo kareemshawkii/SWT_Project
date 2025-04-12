@@ -42,6 +42,8 @@ public class ValidatorTest {
         assertTrue(Validator.validateUserName("john doe"));
         assertFalse(Validator.validateUserName("jo% @hn"));
         assertFalse(Validator.validateUserName("john%"));
+        assertFalse(Validator.validateUserName("123456"));
+
     }
 
     @Test
