@@ -178,8 +178,8 @@ public class RecommendationSystem {
     public static void main(String[] args) {
 
 
-        String moviesFile = "D://Documents//GitHub//SWT_Project//out//production//Project//movies.txt";
-        String usersFile = "D:/Documents/GitHub/SWT_Project/out/production/Project/users.txt";
+        String moviesFile = "movies.txt";
+        String usersFile = "users.txt";
 
         // Check if the files exist before proceeding
         File movieFile = new File(moviesFile);
