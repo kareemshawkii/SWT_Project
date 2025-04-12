@@ -120,7 +120,9 @@ public class RecommendationSystem {
     public void generateRecommendations() {
         for (User user : users) {
             Set<String> likedGenres = new HashSet<>();
-
+            if(!validateData()){
+                user.setRecommendedMovies(null);
+            }
             // Get genres of liked movies
             for (String likedMovieId : user.getLikedMovieIds()) {
                 for (Movie movie : movies) {
