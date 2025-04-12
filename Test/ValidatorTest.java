@@ -1,6 +1,9 @@
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.HashSet;
 import java.util.List;
 
@@ -9,12 +12,13 @@ public class ValidatorTest {
     @Test
     public void testValidateMovieTitle() { //lessa
         assertTrue(Validator.validateTitle("The Matrix"));
+        assertFalse(Validator.validateTitle("The Matrix "));
         assertFalse(Validator.validateTitle("the matrix"));
         assertFalse(Validator.validateTitle("The matrix"));
         assertFalse(Validator.validateTitle("10 Days To Lose A Man"));
         assertFalse(Validator.validateTitle("500 days of summer"));
         assertFalse(Validator.validateTitle("#1 Cheerleader Camp"));
-      // assertFalse(Validator.validateTitle(" Harry Potter")); //error
+        assertFalse(Validator.validateTitle(" Harry Potter"));             //error --> fixed
         assertFalse(Validator.validateTitle(" "));
 
     }
@@ -58,7 +62,7 @@ public class ValidatorTest {
         existingIds.add("12345679A");
         assertFalse(Validator.validateUserId("123456789B", existingIds)); // Invalid length
         assertFalse(Validator.validateUserId("12345", existingIds)); // Invalid length
-        assertFalse(Validator.validateUserId("123456789", existingIds));
+        assertFalse(Validator.validateUserId("123456789", existingIds)); //ERROR      --> not accepted
         assertFalse(Validator.validateUserId("123456789A", existingIds)); // Invalid length
         assertFalse(Validator.validateUserId("123456789", existingIds)); // existing id
         assertTrue(Validator.validateUserId("12345678A", existingIds)); //true

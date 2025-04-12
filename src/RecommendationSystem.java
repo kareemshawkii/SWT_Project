@@ -5,7 +5,6 @@ public class RecommendationSystem {
     public List<Movie> getMovies() {
         return movies;
     }
-
     public List<User> getUsers() {
         return users;
     }
@@ -94,13 +93,13 @@ public class RecommendationSystem {
                 return false;
             }
 
-            if (!Validator.validateMovieId(movie.getMovieId(), movie.getTitle(), movieIds)) {
+            if (!Validator.validateMovieId(movie.getMovieId(), movie.getTitle(), movies)) {
                 errors.add("ERROR: Invalid movie ID: " + movie.getMovieId());
                 return false;
             }
 
-            if (!movieIds.add(movie.getMovieId())) {
-                errors.add("ERROR: Duplicate movie ID: " + movie.getMovieId());
+            if (!Validator.validateMovieId(movie.getMovieId(), movie.getTitle(), movies)) {
+                errors.add("ERROR: Movie Id: " +movie.getMovieId() + "aren’t unique " );
                 return false;
             }
         }
