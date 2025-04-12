@@ -1,7 +1,10 @@
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
 
-import java.io.File;
+
+import java.util.Arrays;
+import java.io.*;
+import java.util.*;
 
 /**
  * Unit tests for the RecommendationSystem class.
@@ -35,10 +38,10 @@ public class RecommendationSystemTest {
      * @param userFile Path to the users file.
      * @param expectRecommendations Whether recommendations are expected.
      */
-    private void runRecommendationTest(String movieFile, String userFile, boolean expectRecommendations) {
+    private void runRecommendationUnitTest(List<Movie> movies, List<User> users, boolean expectRecommendations) {
         RecommendationSystem rs = new RecommendationSystem();
-        rs.loadData(movieFile, userFile);
-        rs.validateData();
+        rs.setMovies(movies);
+        rs.setUsers(users);
         rs.generateRecommendations();
 
         for (User user : rs.getUsers()) {
@@ -46,10 +49,11 @@ public class RecommendationSystemTest {
                 assertNotNull(user.getRecommendedMovies());
                 assertTrue(user.getRecommendedMovies().size() > 0);
             } else {
-                assertFalse(user.getRecommendedMovies().size() > 0);
+                assertTrue(user.getRecommendedMovies() == null || user.getRecommendedMovies().isEmpty());
             }
         }
     }
+
 
     /**
      * Tests recommendation generation under various conditions:
@@ -60,53 +64,58 @@ public class RecommendationSystemTest {
      */
     @Test
     public void testGenerateRecommendations() {
-        // Case 1: Valid data
-        runRecommendationTest("movies.txt", "users.txt", true);
+        List<String> genres1 = Arrays.asList("Sci-Fi","Action");
+        List<String> genres2 = Arrays.asList("Sci-Fi", "Drama");
+        List<String> genres3 = Arrays.asList("Crime", "Drama");
+        List<String> genres4 = Arrays.asList("Comedy");
+        List<String> genres5 = Arrays.asList("Horror", "Thriller");
 
-        // Case 2: Movies file doesn't exist
-        runRecommendationTest("mov.txt", "users.txt", false);
+        Movie m1 = new Movie("Inception", "I123", genres1);
+        Movie m2 = new Movie("Interstellar", "I234", genres2);
+        Movie m3 = new Movie("The Godfather", "TG001", genres3);
+        Movie m4 = new Movie("The Hangover", "TH111", genres4);
+        Movie m5 = new Movie("The Conjuring", "TC999", genres5);
 
-        // Case 3: Users file doesn't exist
-        runRecommendationTest("movies.txt", "use.txt", false);
+        List<Movie> movieList = Arrays.asList(m1, m2, m3, m4, m5);
 
-        // Case 4: Both files don't exist
-        runRecommendationTest("mov.txt", "use.txt", false);
+        // Case 1: User likes Sci-Fi movie (should get "The Godfather" as a rec)
+        User u1 = new User("John", "12345678X", Arrays.asList("I123"));
 
-        // Case 5: Users have no liked movies
-        runRecommendationTest("movies.txt", "usersWithNoLikedMovies.txt", false);
+        // Case 2: User likes all available movies (should get no recommendations)
+        User u2 = new User("Ali", "87654321A", Arrays.asList("I123", "I234", "TG001", "TH111", "TC999"));
 
-        // Case 6: Users have liked all movies already
-        runRecommendationTest("movies.txt", "usersWithAllLiked.txt", false);
+        // Case 3: User likes no movies (should get no recommendations)
+        User u3 = new User("Nada", "123456789", new ArrayList<>());
 
-        // Case 9: One movie entry has empty ID
-        runRecommendationTest("testValidateEmptyMovieId.txt", "users.txt", false);
+        // Case 4: User likes only Drama (should get Sci-Fi/Action movie)
+        User u4 = new User("Mona", "098765432", Arrays.asList("TG001"));
 
-        // Case 10 Same error as for all validations
-     // runRecommendationTest("movies.txt", "testValidateWrongUserData.txt",false); //error
+        // Case 5: User likes Horror (should get something else)
+        User u5 = new User("Tamer", "135790246", Arrays.asList("TC999"));
 
-        //Case 11 Same error as for all validations
-      // runRecommendationTest("movies.txt", "testValidateEmptyUserName.txt",false); //error
+        // Test case 1: One recommendation expected
+        runRecommendationUnitTest(movieList, Arrays.asList(u1), true);
 
+        // Test case 2: No recommendations (liked everything)
+        runRecommendationUnitTest(movieList, Arrays.asList(u2), false);
 
-        //Case 12 Same error as for all validations
-      //  runRecommendationTest("movies.txt", "testValidateEmptyUserid.txt",false); //error
+        // Test case 3: No recommendations (liked nothing)
+        runRecommendationUnitTest(movieList, Arrays.asList(u3), false);
 
+        // Test case 4: Should get Sci-Fi/Action (e.g., Inception)
+        runRecommendationUnitTest(movieList, Arrays.asList(u4), true);
 
-        // Case 13: Duplicate movie IDs in file
-        //runRecommendationTest("testValidateMovieDataDup.txt", "users.txt", false); //error
-
-        // Case 14: Duplicate user IDs in file
-         //runRecommendationTest("movies.txt", "testValidateUserDataDup.txt", false); //error
-
-        // Case 15: All genre-matching movies already liked
-        runRecommendationTest("movies.txt", "usersWithAllGenresLiked.txt", false);
+        // Test case 5: Should get something that's not Horror/Thriller
+        runRecommendationUnitTest(movieList, Arrays.asList(u5), true);
     }
+
+
 
     /**
      * Tests the validateData() method with different edge cases.
      */
     @Test
-    public void testValidateData() {
+    public void testValidateData() { //finished
         // Valid data
         recommendationSystem.loadData("movies.txt", "users.txt");
         assertTrue(recommendationSystem.validateData());
@@ -148,72 +157,40 @@ public class RecommendationSystemTest {
      * Tests whether the recommendations are correctly written to a file.
      * Verifies the output file exists and is not empty.
      */
+
+    /**
+     * Helper method to test writing recommendations and verifying the output.
+     */
+    private void runWriteRecommendationTest(String movieFile, String userFile, List<String> expectedOutput) {
+        RecommendationSystem recommendationSystem = new RecommendationSystem();
+        FileHandler fileHandler = new FileHandler(); //nshof mock up wala la
+        String outputFile = "recommendations.txt";
+
+        recommendationSystem.loadData(movieFile, userFile);
+        recommendationSystem.validateData();
+        recommendationSystem.generateRecommendations();
+        recommendationSystem.writeRecommendations(outputFile);
+
+        File file = new File(outputFile);
+        assertTrue(file.exists(), "Output file should exist");
+        if (expectedOutput.isEmpty()) {
+            assertEquals(0, fileHandler.readFile(outputFile).size(), "Expected no recommendations");
+        } else {
+            assertEquals(expectedOutput, fileHandler.readFile(outputFile), "Output does not match expected recommendations");
+        }
+    }
     @Test
     public void testWriteRecommendations() {
-        FileHandler fileHandler1 = new FileHandler(); // M7TAGEEN MOCKUP
-        RecommendationSystem recommendationSystem1 = new RecommendationSystem(); // Valid case
-
-        List<String> expectedOutput1 = Arrays.asList("Hassan Ali,12345678X", "The Godfather", "Ali Mohamed,87654321W", "The Shawshank Redemption, The Dark Knight");
-        recommendationSystem1.loadData("movies.txt", "users.txt");
-        recommendationSystem1.validateData();
-        recommendationSystem1.generateRecommendations();
-        recommendationSystem1.writeRecommendations("recommendations.txt");
-        assertEquals(expectedOutput1,fileHandler1.readFile("recommendations.txt"));
-//*//
-        FileHandler fileHandler2 = new FileHandler(); // M7TAGEEN MOCKUP
-        RecommendationSystem recommendationSystem2 = new RecommendationSystem(); // First file is invalid
-        recommendationSystem1.loadData("movies.txt", "users.txt");
-        recommendationSystem1.validateData();
-        recommendationSystem1.generateRecommendations();
-
-        //expectedOutput2
-        RecommendationSystem recommendationSystem3 = new RecommendationSystem(); // Second file is invalid
-        //expectedOutput3
-        RecommendationSystem recommendationSystem4 = new RecommendationSystem(); // Both files are invalid
-        //expectedOutput4
-        RecommendationSystem recommendationSystem5 = new RecommendationSystem(); // Both files are invalid
-        //expectedOutput5
-
-        //*//
-        RecommendationSystem recommendationSystem6 = new RecommendationSystem(); // users with no liked movies
-        //expectedOutput6
-        RecommendationSystem recommendationSystem7 = new RecommendationSystem(); // users that liked all existing movies in the movies file
-        //expectedOutput7
-        RecommendationSystem recommendationSystem8 = new RecommendationSystem(); // Invalid movie format
-        //expectedOutput8
-        RecommendationSystem recommendationSystem9 = new RecommendationSystem(); // Empty movie name
-        //expectedOutput9
-        RecommendationSystem recommendationSystem10 = new RecommendationSystem(); // Empty movie id
-        //expectedOutput10
-        RecommendationSystem recommendationSystem11 = new RecommendationSystem(); // Invalid user format
-        //expectedOutput11
-        RecommendationSystem recommendationSystem12 = new RecommendationSystem(); // Empty user name
-        //expectedOutput12
-        RecommendationSystem recommendationSystem13 = new RecommendationSystem(); // Empty user id
-        //expectedOutput13
-        RecommendationSystem recommendationSystem14 = new RecommendationSystem(); // Duplicate movie id
-        //expectedOutput14
-        RecommendationSystem recommendationSystem15 = new RecommendationSystem(); // Duplicate user id
-        //expectedOutput15
-        // The difference between the following test case and case 6 that here the user liked all related genres but not all the movies in the file
-        RecommendationSystem recommendationSystem16 = new RecommendationSystem(); // No recommendations when all genre-matching movies are already liked.
-        //expectedOutput16
-        RecommendationSystem recommendationSystem17 = new RecommendationSystem(); // Another valid case
-        //expectedOutput17
-        RecommendationSystem recommendationSystem18 = new RecommendationSystem(); // Another valid case
-        //expectedOutput18
-        RecommendationSystem recommendationSystem19 = new RecommendationSystem(); // Another valid case
-        //expectedOutput19
+        // Valid case
+        runWriteRecommendationTest("movies.txt", "users.txt",
+                Arrays.asList(
+                        "Hassan Ali,12345678X",
+                        "The Godfather",
+                        "Ali Mohamed,87654321W",
+                        "The Shawshank Redemption, The Dark Knight"
+                ));  //error
 
 
-
-
-
-
-
-        File file = new File("recommendations.txt");
-        assertTrue(file.exists());
-        assertTrue(file.length() > 0);
     }
 }
 

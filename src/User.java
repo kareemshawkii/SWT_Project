@@ -1,10 +1,10 @@
 import java.util.List;
 
 public class User {
-    private final String name;
-    private final String userId;
-    private final List<String> likedMovieIds;
-    private List<String> recommendedMovies; // Added field for recommended movies
+    private String name;
+    private String userId;
+    private List<String> likedMovieIds;
+    private List<String> recommendedMovies;
 
     public User(String name, String userId, List<String> likedMovieIds) {
         this.name = name;
@@ -12,6 +12,7 @@ public class User {
         this.likedMovieIds = likedMovieIds;
     }
 
+    // Getters
     public String getName() {
         return name;
     }
@@ -26,6 +27,19 @@ public class User {
 
     public List<String> getRecommendedMovies() {
         return recommendedMovies;
+    }
+
+    // Setters
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public void setLikedMovieIds(List<String> likedMovieIds) {
+        this.likedMovieIds = likedMovieIds;
     }
 
     public void setRecommendedMovies(List<String> recommendedMovies) {

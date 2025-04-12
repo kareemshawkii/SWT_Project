@@ -15,6 +15,15 @@ public class RecommendationSystem {
     private List<String> errors = new ArrayList<>();
     private FileHandler fileHandler = new FileHandler();       // put in the uml
 
+    public void setMovies(List<Movie> movies) {
+        this.movies = movies;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
+    }
+
+
 
     // Load movie and user data from the specified files
     public void loadData(String moviesFile, String usersFile) {
@@ -121,7 +130,9 @@ public class RecommendationSystem {
         for (User user : users) {
             Set<String> likedGenres = new HashSet<>();
             if(!validateData()){
-                user.setRecommendedMovies(null);
+
+                user.setRecommendedMovies(new ArrayList<>(' '));
+
             }
             // Get genres of liked movies
             for (String likedMovieId : user.getLikedMovieIds()) {
