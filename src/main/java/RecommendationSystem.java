@@ -1,18 +1,24 @@
-import java.io.*;
+import java.io.File;
 import java.util.*;
 
 public class RecommendationSystem {
-    public List<Movie> getMovies() {
-        return movies;
-    }
-    public List<User> getUsers() {
-        return users;
-    }
 
     private List<Movie> movies = new ArrayList<>();
     private List<User> users = new ArrayList<>();
     private List<String> errors = new ArrayList<>();
-    private FileHandler fileHandler = new FileHandler();       // put in the uml
+    private FileHandler fileHandler = new FileHandler(); // Assuming FileHandler class exists
+
+    public RecommendationSystem() {
+    }
+
+    // --- Getters and Setters ---
+    public List<Movie> getMovies() {
+        return this.movies;
+    }
+
+    public List<User> getUsers() {
+        return this.users;
+    }
 
     public void setMovies(List<Movie> movies) {
         this.movies = movies;
@@ -23,66 +29,97 @@ public class RecommendationSystem {
     }
 
 
-
-    // Load movie and user data from the specified files
+    // --- Load Data Method ---
     public void loadData(String moviesFile, String usersFile) {
         List<String> movieLines = fileHandler.readFile(moviesFile);
         List<String> userLines = fileHandler.readFile(usersFile);
+        this.movies.clear(); // Clear existing data before loading
+        this.users.clear();
+        this.errors.clear();
 
-        // Parse movies
-        for (int i = 0; i < movieLines.size(); i++) {
+        // Process Movies
+        for (int i = 0; i < movieLines.size(); ++i) {
             String line = movieLines.get(i);
-            String[] movieParts = line.split(",");
+            if (line == null || line.trim().isEmpty()) continue; // Skip empty lines
 
-            // Check if the line has exactly 2 parts (title and ID)
+            String[] movieParts = line.split(",");
             if (movieParts.length != 2) {
-                errors.add("ERROR: Invalid movie line format at line " + (i + 1));
+                this.errors.add("ERROR: Invalid movie line format at line " + (i + 1) + ": " + line);
+                i++; // Attempt to skip potential genre line
                 continue;
             }
-
             String title = movieParts[0].trim();
             String movieId = movieParts[1].trim();
 
-            // Make sure we're not going beyond the bounds of the list
             if (i + 1 < movieLines.size()) {
-                String genreLine = movieLines.get(i + 1);  // Genres are on the next line
-                List<String> genres = Arrays.asList(genreLine.split(","));
-                movies.add(new Movie(title, movieId, genres));
-                i++;  // Skip the next line since it's the genre line
+                String genreLine = movieLines.get(i + 1);
+                if (genreLine == null || genreLine.trim().isEmpty()) {
+                    this.errors.add("ERROR: Missing or empty genre line for movie: " + title + " at line " + (i + 2));
+                    i++; // Move past the empty line
+                    continue;
+                }
+                List<String> genres = new ArrayList<>();
+                for (String genre : genreLine.split(",")) {
+                    if (!genre.trim().isEmpty()) { // Avoid adding empty genres
+                        genres.add(genre.trim());
+                    }
+                }
+                if (genres.isEmpty()){
+                    this.errors.add("ERROR: No valid genres found for movie: " + title + " at line " + (i + 2));
+                }
+                this.movies.add(new Movie(title, movieId, genres));
+                i++; // Increment i because we processed the genre line
+            } else {
+                this.errors.add("ERROR: Missing genre line for movie: " + title);
             }
         }
 
-        // Parse users
-        for (int i = 0; i < userLines.size(); i++) {
+        // Process Users
+        for (int i = 0; i < userLines.size(); ++i) {
             String line = userLines.get(i);
-            String[] userParts = line.split(",");
+            if (line == null || line.trim().isEmpty()) continue; // Skip empty lines
 
-            // Check if the line has exactly 2 parts (name and userId)
+            String[] userParts = line.split(",");
             if (userParts.length != 2) {
-                errors.add("ERROR: Invalid user line format");
-                return;
+                this.errors.add("ERROR: Invalid user line format at line " + (i + 1) + ": " + line);
+                i++; // Attempt to skip potential liked movies line
+                continue;
             }
 
             String name = userParts[0].trim();
             String userId = userParts[1].trim();
 
-            // Make sure we're not going beyond the bounds of the list
             if (i + 1 < userLines.size()) {
-                String likedLine = userLines.get(i + 1);  // Liked movies are on the next line
-                List<String> likedMovies = Arrays.asList(likedLine.split(","));
-
-                // Add the user and their liked movies
-                users.add(new User(name, userId, likedMovies));
-
-                // Skip the next line because it's the liked movies line
-                i++;  // Increment i to skip the liked movie line
+                String likedLine = userLines.get(i + 1);
+                if (likedLine == null) { // Check for null explicitly
+                    this.errors.add("ERROR: Missing liked movies line for user: " + name);
+                    i++; // Move past this line index
+                    continue;
+                }
+                List<String> likedMovies = new ArrayList<>();
+                // Handle empty liked list correctly
+                if (!likedLine.trim().isEmpty()) {
+                    for (String likedId : likedLine.split(",")) {
+                        if (!likedId.trim().isEmpty()){ // Avoid adding empty IDs
+                            likedMovies.add(likedId.trim());
+                        }
+                    }
+                }
+                this.users.add(new User(name, userId, likedMovies));
+                i++; // Increment i because we processed the liked movies line
+            } else {
+                this.errors.add("ERROR: Missing liked movies line for user: " + name);
             }
         }
-
-
+        if (!this.errors.isEmpty()) {
+            System.err.println("Errors occurred during data loading:");
+            this.errors.forEach(System.err::println);
+        }
     }
 
-    // Validate movie and user data
+
+    // --- Validate Data Method ---
+
     public boolean validateData() {
         Set<String> movieIds = new HashSet<>();
         Set<String> userIds = new HashSet<>();
@@ -124,7 +161,7 @@ public class RecommendationSystem {
         return true;
     }
 
-    // Generate movie recommendations for users based on liked movies and genres
+
     public void generateRecommendations() {
         for (User user : users) {
             Set<String> likedGenres = new HashSet<>();
@@ -158,9 +195,6 @@ public class RecommendationSystem {
     }
 
 
-
-
-
     // Write the generated recommendations to an output file
     public void writeRecommendations(String outputFile) {
         List<String> content = new ArrayList<>();
@@ -170,7 +204,7 @@ public class RecommendationSystem {
             // Write the first error if there are any
         }
 
-         else {
+        else {
             for (User user : users) {
                 content.add(user.getName() + "," + user.getUserId());
                 content.add(String.join(",", user.getRecommendedMovies()));
@@ -188,8 +222,8 @@ public class RecommendationSystem {
     public static void main(String[] args) {
 
 
-        String moviesFile = "movies.txt";
-        String usersFile = "users.txt";
+        String moviesFile = "src/main/resources/movies.txt";
+        String usersFile = "src/main/resources/users.txt";
 
         // Check if the files exist before proceeding
         File movieFile = new File(moviesFile);
@@ -208,18 +242,18 @@ public class RecommendationSystem {
             RecommendationSystem recommendationSystem = new RecommendationSystem();
 
 
-        String outputFile = "recommendations.txt";
+            String outputFile = "src/main/resources/recommendations.txt";
 
-        // Load data from files
-        recommendationSystem.loadData(moviesFile, usersFile);
+            // Load data from files
+            recommendationSystem.loadData(moviesFile, usersFile);
 
 
-        // Generate recommendations
-        recommendationSystem.generateRecommendations();
+            // Generate recommendations
+            recommendationSystem.generateRecommendations();
 
-        // Write recommendations to the output file
-        recommendationSystem.writeRecommendations(outputFile);
+            // Write recommendations to the output file
+            recommendationSystem.writeRecommendations(outputFile);
 
+        }
     }
-}
 }

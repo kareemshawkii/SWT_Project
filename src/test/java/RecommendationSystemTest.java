@@ -1,12 +1,11 @@
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
+
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.io.File;
 
-import java.util.Arrays;
-import java.io.*;
-import java.util.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for the RecommendationSystem class.
@@ -129,27 +128,27 @@ public class RecommendationSystemTest {
     @Test
     public void testValidateData() { //finished
         // Valid data
-        recommendationSystem.loadData("movies.txt", "users.txt");
+        recommendationSystem.loadData("src/test/resources/movies.txt", "src/test/resources/users.txt");
         assertTrue(recommendationSystem.validateData());
 
         // Invalid movie format (e.g., missing fields or wrong structure)
-        recommendationSystem.loadData("testValidateWrongMovieData.txt", "users.txt");
+        recommendationSystem.loadData("src/test/resources/testValidateWrongMovieData.txt", "src/test/resources/users.txt");
         assertFalse(recommendationSystem.validateData());
 
         // Movie entry with empty name
-        recommendationSystem.loadData("testValidateEmptyMovieName.txt", "users.txt");
+        recommendationSystem.loadData("src/test/resources/testValidateEmptyMovieName.txt", "src/test/resources/users.txt");
         assertFalse(recommendationSystem.validateData());
 
         // Movie entry with empty ID
-        recommendationSystem.loadData("testValidateEmptyMovieId.txt", "users.txt");
+        recommendationSystem.loadData("src/test/resources/testValidateEmptyMovieId.txt", "src/test/resources/users.txt");
         assertFalse(recommendationSystem.validateData());
 
         // Invalid user format (e.g., missing fields)
-        recommendationSystem.loadData("movies.txt", "testValidateWrongUserData.txt");
+        recommendationSystem.loadData("src/test/resources/movies.txt", "src/test/resources/testValidateWrongUserData.txt");
         assertFalse(recommendationSystem.validateData());
 
         // User entry with empty name
-        recommendationSystem.loadData("movies.txt", "testValidateEmptyUserName.txt");
+        recommendationSystem.loadData("src/test/resources/movies.txt", "src/test/resources/testValidateEmptyUserName.txt");
         assertFalse(recommendationSystem.validateData());
 
         // Uncomment if file and logic for empty user ID exists
@@ -157,11 +156,11 @@ public class RecommendationSystemTest {
         // assertFalse(recommendationSystem.validateData());
 
         // Duplicate movie IDs in file
-        recommendationSystem.loadData("testValidateMovieDataDup.txt", "users.txt");
+        recommendationSystem.loadData("src/test/resources/testValidateMovieDataDup.txt", "src/test/resources/users.txt");
         assertFalse(recommendationSystem.validateData());
 
         // Duplicate user IDs in file
-        recommendationSystem.loadData("movies.txt", "testValidateUserDataDup.txt");
+        recommendationSystem.loadData("src/test/resources/movies.txt", "src/test/resources/testValidateUserDataDup.txt");
         assertFalse(recommendationSystem.validateData());
     }
 
@@ -176,7 +175,7 @@ public class RecommendationSystemTest {
     private void runWriteRecommendationTest(String movieFile, String userFile, List<String> expectedOutput) {
         RecommendationSystem recommendationSystem = new RecommendationSystem();
         FileHandler fileHandler = new FileHandler(); //nshof mock up wala la
-        String outputFile = "recommendations.txt";
+        String outputFile = "src/test/resources/recommendations.txt";
 
         recommendationSystem.loadData(movieFile, userFile);
         recommendationSystem.validateData();
@@ -194,12 +193,12 @@ public class RecommendationSystemTest {
     @Test
     public void testWriteRecommendations() {
         // Valid case
-        runWriteRecommendationTest("movies.txt", "users.txt",
+        runWriteRecommendationTest("src/test/resources/movies.txt", "src/test/resources/users.txt",
                 Arrays.asList(
                         "Hassan Ali,12345678X",
                         "The Godfather",
                         "Ali Mohamed,87654321W",
-                        "The Shawshank Redemption, The Dark Knight"
+                        "The Shawshank Redemption,The Dark Knight"
                 ));  //error
 
 
