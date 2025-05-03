@@ -309,4 +309,77 @@ public class ValidatorTest {
         Set<String> ids = new HashSet<>(Set.of("12345678X"));
         assertFalse(Validator.validateUserId("12345678X", ids));
     }
+    //=======================Ahmed - path=========================//
+    @Test void testValidateTitle_Validd() {
+        assertTrue(Validator.validateTitle("The Matrix"));
+    }
+
+    @Test void testValidateTitle_LeadingSpace() {
+        assertFalse(Validator.validateTitle(" The Matrix"));
+    }
+
+    @Test void testValidateTitle_TrailingSpace() {
+        assertFalse(Validator.validateTitle("The Matrix "));
+    }
+
+    @Test void testValidateTitle_LowercaseWord() {
+        assertFalse(Validator.validateTitle("the Matrix"));
+    }
+
+    @Test void testValidateMovieId_Validdd() {
+        List<String> genres = List.of("Action", "Sci-Fi");
+        List<Movie> movies = List.of(new Movie("The Matrix", "TM001", genres));
+        assertTrue(Validator.validateMovieId("TM001", "The Matrix", movies));
+    }
+
+    @Test void testValidateMovieId_WrongPrefixx() {
+        List<String> genres = List.of("Action", "Sci-Fi");
+        List<Movie> movies = List.of(new Movie("The Matrix", "TM001", genres));
+        assertFalse(Validator.validateMovieId("TX001", "The Matrix", movies));
+    }
+
+    @Test void testValidateMovieId_ShortDigits() {
+        List<String> genres = List.of("Action", "Sci-Fi");
+        List<Movie> movies = List.of(new Movie("The Matrix", "TM001", genres));
+        assertFalse(Validator.validateMovieId("TM01", "The Matrix", movies));
+    }
+
+    @Test void testValidateMovieId_NotUnique() {
+        List<String> genres = List.of("Action", "Sci-Fi");
+        List<Movie> movies = List.of(
+                new Movie("The Matrix", "TM001", genres),
+                new Movie("The Matrix Reloaded", "TM001", genres)
+        );
+        assertFalse(Validator.validateMovieId("TM001", "The Matrix", movies));
+    }
+
+    @Test void testValidateUserName_Validdd() {
+        assertTrue(Validator.validateUserName("Alice Smith"));
+    }
+
+    @Test void testValidateUserName_LeadingSpacee() {
+        assertFalse(Validator.validateUserName(" alice"));
+    }
+
+    @Test void testValidateUserName_NoCapital() {
+        assertFalse(Validator.validateUserName("alice"));
+    }
+
+    @Test void testValidateUserId_Validdd() {
+        Set<String> ids = new HashSet<>();
+        assertTrue(Validator.validateUserId("12345678A", ids));
+    }
+
+    @Test void testValidateUserId_Duplicate() {
+        Set<String> ids = new HashSet<>(Set.of("12345678A"));
+        assertFalse(Validator.validateUserId("12345678A", ids));
+    }
+
+    @Test void testValidateUserId_Short() {
+        assertFalse(Validator.validateUserId("1234", new HashSet<>()));
+    }
+
+    @Test void testValidateUserId_InvalidFormatt() {
+        assertFalse(Validator.validateUserId("ABCDEFGH1", new HashSet<>()));
+    }
 }
