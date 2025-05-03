@@ -2,8 +2,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -173,5 +172,113 @@ class FileHandlerTest {
         List<String> content = List.of("fail");
         fileHandler.writeFile(INVALID_PATH, content); // catch triggered
         // No exception should be thrown, error is printed
+    }
+    //=======================Ahmed - path=========================//
+
+    @Test
+    void testReadFile_ValidFilee() throws IOException {
+        // Create a temporary file and write content
+        File tempFile = File.createTempFile("testFile", ".txt");
+        BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+        writer.write("Line 1\nLine 2\nLine 3");
+        writer.close();
+
+        List<String> lines = fileHandler.readFile(tempFile.getAbsolutePath());
+
+        // Check if the content is correctly read
+        assertEquals(3, lines.size());
+        assertEquals("Line 1", lines.get(0));
+        assertEquals("Line 2", lines.get(1));
+        assertEquals("Line 3", lines.get(2));
+
+        // Clean up
+        tempFile.delete();
+    }
+
+    @Test
+    void testReadFile_InvalidFile() {
+        // Try to read a non-existent file
+        List<String> lines = fileHandler.readFile("invalidFilePath.txt");
+
+        // Should return an empty list and print an error
+        assertTrue(lines.isEmpty());
+    }
+
+    @Test
+    void testWriteFile_ValidContent() throws IOException {
+        // Create a temporary file
+        File tempFile = File.createTempFile("testWrite", ".txt");
+
+        List<String> content = List.of("Hello", "World");
+        fileHandler.writeFile(tempFile.getAbsolutePath(), content);
+
+        // Verify content was written correctly
+        BufferedReader reader = new BufferedReader(new FileReader(tempFile));
+        assertEquals("Hello", reader.readLine().trim());
+        assertEquals("World", reader.readLine().trim());
+        reader.close();
+
+        // Clean up
+        tempFile.delete();
+    }
+
+    @Test
+    void testWriteFile_InvalidPatht() {
+        // Try writing to an invalid path
+        List<String> content = List.of("Invalid Path Test");
+        fileHandler.writeFile("/invalid/path/test.txt", content);
+
+        // Should print an error (no assertion required for console output)
+    }
+
+    @Test
+    void testReadFile_EmptyFile() throws IOException {
+        // Create an empty temporary file
+        File tempFile = File.createTempFile("emptyFile", ".txt");
+
+        List<String> lines = fileHandler.readFile(tempFile.getAbsolutePath());
+
+        // Should return an empty list
+        assertTrue(lines.isEmpty());
+
+        // Clean up
+        tempFile.delete();
+    }
+
+    @Test
+    void testWriteFile_EmptyContent() throws IOException {
+        // Create a temporary file
+        File tempFile = File.createTempFile("emptyContentFile", ".txt");
+
+        List<String> content = List.of();
+        fileHandler.writeFile(tempFile.getAbsolutePath(), content);
+
+        // Verify file is created but empty
+        BufferedReader reader = new BufferedReader(new FileReader(tempFile));
+        assertNull(reader.readLine());
+        reader.close();
+
+        // Clean up
+        tempFile.delete();
+    }
+
+    @Test
+    void testReadFile_FileWithSpaces() throws IOException {
+        // Create a temporary file with spaces
+        File tempFile = File.createTempFile("fileWithSpaces", ".txt");
+        BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+        writer.write("  Line 1 with spaces  \n  Line 2  \n  ");
+        writer.close();
+
+        List<String> lines = fileHandler.readFile(tempFile.getAbsolutePath());
+
+        // Check that the spaces are trimmed
+        assertEquals(3, lines.size());
+        assertEquals("Line 1 with spaces", lines.get(0));
+        assertEquals("Line 2", lines.get(1));
+        assertEquals("", lines.get(2));
+
+        // Clean up
+        tempFile.delete();
     }
 }
