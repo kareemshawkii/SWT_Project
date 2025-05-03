@@ -171,7 +171,6 @@ class FileHandlerTest {
     void testWriteFileIOException() {
         List<String> content = List.of("fail");
         fileHandler.writeFile(INVALID_PATH, content); // catch triggered
-        // No exception should be thrown, error is printed
     }
     //=======================Ahmed - path=========================//
 
