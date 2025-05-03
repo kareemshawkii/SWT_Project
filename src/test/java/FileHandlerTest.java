@@ -16,15 +16,22 @@ class FileHandlerTest {
     private FileHandler fileHandler;
     private static final String TEST_FILE_PATH = "testOutput.txt";
     private static final String INVALID_PATH = "/invalid_dir/test.txt";
+    private static final String TEST_READ_FILE = "test_read.txt";
+    private static final String TEST_WRITE_FILE = "test_write.txt";
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
         fileHandler = new FileHandler();
+        Files.write(Paths.get(TEST_READ_FILE), Arrays.asList(" Line1 ", " Line2 "));
     }
 
     @AfterEach
     void tearDown() {
         fileHandler = null;
         new File("Project/testOutput.txt").delete();
+        try {
+            Files.deleteIfExists(Paths.get(TEST_READ_FILE));
+            Files.deleteIfExists(Paths.get(TEST_WRITE_FILE));
+        } catch (IOException ignored) {}
     }
 
     @Test
@@ -100,5 +107,38 @@ class FileHandlerTest {
         // This path may not work on all systems, adjust if needed
         fileHandler.writeFile(INVALID_PATH, content);
     }
+
+    //============================Ahmed - Statement============================//
+    @Test
+    public void testReadFile_ValidFile() {
+        List<String> lines = fileHandler.readFile(TEST_READ_FILE);
+        assertEquals(Arrays.asList("Line1", "Line2"), lines);
+    }
+
+    @Test
+    public void testReadFile_FileNotFound() {
+        List<String> lines = fileHandler.readFile("nonexistent_file.txt");
+        assertTrue(lines.isEmpty());
+    }
+
+    @Test
+    public void testWriteFile_ValidFile() throws IOException {
+        List<String> content = Arrays.asList("Hello", "World");
+        fileHandler.writeFile(TEST_WRITE_FILE, content);
+
+        List<String> linesWritten = Files.readAllLines(Paths.get(TEST_WRITE_FILE));
+        assertEquals(content, linesWritten);
+    }
+
+    @Test
+    public void testWriteFile_InvalidPath() {
+        // Use an invalid file path (simulate failure, OS-dependent)
+        String invalidPath = "?:/invalid<>path.txt";  // Invalid on Windows
+        List<String> content = Arrays.asList("Test");
+
+        // Should not throw, just print error
+        assertDoesNotThrow(() -> fileHandler.writeFile(invalidPath, content));
+    }
+
 
 }
