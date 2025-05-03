@@ -139,6 +139,39 @@ class FileHandlerTest {
         // Should not throw, just print error
         assertDoesNotThrow(() -> fileHandler.writeFile(invalidPath, content));
     }
+    //condition testing=========================kareem=======================================
+    @Test
+    void testReadFileWithContentCon() throws IOException {
+        Files.write(Paths.get(TEST_READ_FILE), List.of(" Hello ", "World "));
+        List<String> lines = fileHandler.readFile(TEST_READ_FILE);
+        assertEquals(List.of("Hello", "World"), lines); // C1: true
+    }
 
+    @Test
+    void testReadFileEmpty() throws IOException {
+        Files.write(Paths.get(TEST_READ_FILE), List.of());
+        List<String> lines = fileHandler.readFile(TEST_READ_FILE);
+        assertTrue(lines.isEmpty()); // C1: false
+    }
 
+    @Test
+    void testReadFileIOException() {
+        List<String> lines = fileHandler.readFile("nonexistent_file.txt");
+        assertTrue(lines.isEmpty()); // catch triggered
+    }
+
+    @Test
+    void testWriteFileSuccess() throws IOException {
+        List<String> content = List.of("Line1", "Line2");
+        fileHandler.writeFile(TEST_WRITE_FILE, content);
+        List<String> readBack = Files.readAllLines(Paths.get(TEST_WRITE_FILE));
+        assertEquals(content, readBack); // no catch
+    }
+
+    @Test
+    void testWriteFileIOException() {
+        List<String> content = List.of("fail");
+        fileHandler.writeFile(INVALID_PATH, content); // catch triggered
+        // No exception should be thrown, error is printed
+    }
 }

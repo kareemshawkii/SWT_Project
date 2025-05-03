@@ -164,16 +164,16 @@ public class ValidatorTest {
 
     @Test
     public void testValidateMovieId_Valid() {
-        Movie movie = new Movie("The Matrix", "TheMatrix001", Arrays.asList("Sci-Fi"));
+        Movie movie = new Movie("The Matrix", "TM001", Arrays.asList("Sci-Fi"));
         List<Movie> movies = Collections.singletonList(movie);
-        assertTrue(Validator.validateMovieId("TheMatrix001", "The Matrix", movies));
+        assertTrue(Validator.validateMovieId("TM001", "The Matrix", movies));
     }
 
     @Test
     public void testValidateMovieId_InvalidCapitalPrefix() {
         Movie movie = new Movie("The Matrix", "TM001", Arrays.asList("Action"));
         List<Movie> movies = Collections.singletonList(movie);
-        assertFalse(Validator.validateMovieId("TM001", "The Matrix", movies));
+        assertFalse(Validator.validateMovieId("T001", "The Matrix", movies));
     }
 
     @Test
