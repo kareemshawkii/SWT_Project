@@ -84,7 +84,7 @@ public class ValidatorTest {
     }
 
     @Test
-    void testValidateMovieId_Valid() {
+    void testValidateMovieId_Validd() {
         Movie movie = new Movie("The Matrix", "TM123", List.of("Action"));
         List<Movie> movies = List.of(movie);
         assertTrue(Validator.validateMovieId("TM123", "The Matrix", movies));
@@ -98,7 +98,7 @@ public class ValidatorTest {
     }
 
     @Test
-    void testValidateMovieId_InvalidDigits() {
+    void testValidateMovieId_InvalidDigitss() {
         Movie movie = new Movie("The Matrix", "TM12", List.of("Action"));
         List<Movie> movies = List.of(movie);
         assertFalse(Validator.validateMovieId("TM12", "The Matrix", movies));
@@ -144,5 +144,85 @@ public class ValidatorTest {
         Set<String> existing = new HashSet<>(Set.of("12345678X"));
         assertFalse(Validator.validateUserId("12345678X", existing));
     }
-    
+    //=======================Ahmed - Statement=========================//
+    @Test
+    public void testValidateTitle_ValidTitle() {
+        assertTrue(Validator.validateTitle("The Matrix"));
+    }
+
+    @Test
+    public void testValidateTitle_InvalidStartOrEndSpace() {
+        assertFalse(Validator.validateTitle(" The Matrix"));
+        assertFalse(Validator.validateTitle("The Matrix "));
+    }
+
+    @Test
+    public void testValidateTitle_WordNotCapitalized() {
+        assertFalse(Validator.validateTitle("the Matrix"));
+        assertFalse(Validator.validateTitle("The matrix"));
+    }
+
+    @Test
+    public void testValidateMovieId_Valid() {
+        Movie movie = new Movie("The Matrix", "TheMatrix001", Arrays.asList("Sci-Fi"));
+        List<Movie> movies = Collections.singletonList(movie);
+        assertTrue(Validator.validateMovieId("TheMatrix001", "The Matrix", movies));
+    }
+
+    @Test
+    public void testValidateMovieId_InvalidCapitalPrefix() {
+        Movie movie = new Movie("The Matrix", "TM001", Arrays.asList("Action"));
+        List<Movie> movies = Collections.singletonList(movie);
+        assertFalse(Validator.validateMovieId("TM001", "The Matrix", movies));
+    }
+
+    @Test
+    public void testValidateMovieId_InvalidDigits() {
+        Movie movie = new Movie("The Matrix", "TheMatrix01", Arrays.asList("Action"));
+        List<Movie> movies = Collections.singletonList(movie);
+        assertFalse(Validator.validateMovieId("TheMatrix01", "The Matrix", movies));
+    }
+
+    @Test
+    public void testValidateMovieId_DuplicateIds() {
+        Movie movie1 = new Movie("The Matrix", "TheMatrix001", Arrays.asList("Sci-Fi"));
+        Movie movie2 = new Movie("The Matrix", "TheMatrix001", Arrays.asList("Action"));
+        List<Movie> movies = Arrays.asList(movie1, movie2);
+        assertFalse(Validator.validateMovieId("TheMatrix001", "The Matrix", movies));
+    }
+
+    @Test
+    public void testValidateUserName_Validd() {
+        assertTrue(Validator.validateUserName("John Doe"));
+    }
+
+    @Test
+    public void testValidateUserName_InvalidLeadingSpace() {
+        assertFalse(Validator.validateUserName(" John"));
+    }
+
+    @Test
+    public void testValidateUserName_LowerCaseOnly() {
+        assertFalse(Validator.validateUserName("john doe"));
+    }
+
+    @Test
+    public void testValidateUserId_Validd() {
+        Set<String> existingIds = new HashSet<>(Arrays.asList("11112222A", "87654321B"));
+        assertTrue(Validator.validateUserId("12345678Z", existingIds));
+    }
+
+    @Test
+    public void testValidateUserId_InvalidLengthOrFormat() {
+        Set<String> existingIds = new HashSet<>();
+        assertFalse(Validator.validateUserId("1234567", existingIds));       // too short
+        assertFalse(Validator.validateUserId("abcdefgh", existingIds));      // not digits
+        assertFalse(Validator.validateUserId("12345678#", existingIds));     // invalid suffix
+    }
+
+    @Test
+    public void testValidateUserId_AlreadyExists() {
+        Set<String> existingIds = new HashSet<>(Arrays.asList("12345678A"));
+        assertFalse(Validator.validateUserId("12345678A", existingIds));
+    }
 }
