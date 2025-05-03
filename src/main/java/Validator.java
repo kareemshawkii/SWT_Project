@@ -17,7 +17,7 @@ public class Validator {
         return true;
     }
 
-    private static boolean isUnique(List<Movie> movies) {
+    protected static boolean isUnique(List<Movie> movies) {
         ArrayList<Integer> dynamicArray = new ArrayList<>();
 
         // Validate movies
@@ -70,7 +70,7 @@ public class Validator {
 
     public static boolean validateUserName(String name) {
         if (name.startsWith(" ")) return false;
-        return name.matches("^[A-Za-z]+(?: [A-Za-z]+)*$"); //  "^[A-Za-z ]+$";  [A-Za-z ]+  // Solved username bug
+        return name.matches("^([A-Z][a-z]*)( [A-Z][a-z]*)*$"); //  "^[A-Za-z ]+$";  [A-Za-z ]+  // Solved username bug
     }
 
     public static boolean validateUserId(String userId, Set<String> existingIds) {
