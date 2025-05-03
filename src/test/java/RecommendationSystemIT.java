@@ -2,6 +2,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
 
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.io.*;
 import java.util.*;
@@ -19,17 +21,20 @@ public class RecommendationSystemIT {
      */
     @BeforeEach
     void setUp() {
+
         recommendationSystem = new RecommendationSystem();
+
     }
 
     /**
      * Cleans up the RecommendationSystem instance after each test.
      */
     @AfterEach
-    void tearDown() {
+    void tearDown() throws IOException {
         recommendationSystem = null;
         // Optionally delete the output file after tests
         // new File("Project/testOutput.txt").delete();
+
     }
 
     /**
@@ -230,6 +235,6 @@ public class RecommendationSystemIT {
         List<String> expected15 = Arrays.asList("Hassan Ali,12345678X","", "Ali Mohamed,87654321W", "");
         runWriteRecommendationTest("src/Test/resources/movies2.txt", "src/Test/resources/usersWithAllGenresLiked.txt", expected15);
 
-
     }
+
 }

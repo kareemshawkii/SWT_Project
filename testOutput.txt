@@ -1,3 +1,2 @@
-Line 1: Hello, world!
-Line 2: Testing file writing
-Line 3: End of file
+Hello
+World

@@ -1,8 +1,12 @@
 import org.junit.jupiter.api.*;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,6 +18,10 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RecommendationSystemTest {
 
     private RecommendationSystem recommendationSystem;
+    private RecommendationSystem rs;
+    private static final String MOVIES_FILE = "src/Test/resources/movies.txt";
+    private static final String USERS_FILE = "src/Test/resources/users.txt";
+    private static final String OUTPUT_FILE = "recommendations.txt";
 
     /**
      * Initializes a fresh RecommendationSystem instance before each test.
@@ -21,16 +29,20 @@ public class RecommendationSystemTest {
     @BeforeEach
     void setUp() {
         recommendationSystem = new RecommendationSystem();
+        rs = new RecommendationSystem();
     }
 
     /**
      * Cleans up the RecommendationSystem instance after each test.
      */
     @AfterEach
-    void tearDown() {
+    void tearDown() throws IOException {
         recommendationSystem = null;
         // Optionally delete the output file after tests
         // new File("Project/testOutput.txt").delete();
+        Files.deleteIfExists(Paths.get(MOVIES_FILE));
+        Files.deleteIfExists(Paths.get(USERS_FILE));
+        Files.deleteIfExists(Paths.get(OUTPUT_FILE));
     }
 
     /**
@@ -202,6 +214,151 @@ public class RecommendationSystemTest {
                 ));  //error
 
 
+    }
+    //branch test==========================kareem=================================================
+    @Test
+    void testLoadDataWithValidInputs() throws IOException {
+        List<String> moviesData = Arrays.asList(
+                "The Matrix,M1",
+                "Action,Sci-Fi",
+                "Titanic,M2",
+                "Romance,Drama"
+        );
+        List<String> usersData = Arrays.asList(
+                "Alice,123",
+                "M1"
+        );
+        Files.write(Paths.get(MOVIES_FILE), moviesData);
+        Files.write(Paths.get(USERS_FILE), usersData);
+
+        rs.loadData(MOVIES_FILE, USERS_FILE);
+
+        assertEquals(2, rs.getMovies().size());
+        assertEquals(1, rs.getUsers().size());
+    }
+
+    @Test
+    void testLoadDataWithMissingGenreLine() throws IOException {
+        List<String> moviesData = Arrays.asList(
+                "Movie1,M1"
+        );
+        Files.write(Paths.get(MOVIES_FILE), moviesData);
+        Files.write(Paths.get(USERS_FILE), Collections.emptyList());
+
+        rs.loadData(MOVIES_FILE, USERS_FILE);
+
+        assertTrue(rs.getMovies().isEmpty());
+    }
+
+    @Test
+    void testLoadDataWithInvalidUserLine() throws IOException {
+        List<String> moviesData = Collections.emptyList();
+        List<String> usersData = Arrays.asList(
+                "InvalidUserLineWithoutComma"
+        );
+        Files.write(Paths.get(MOVIES_FILE), moviesData);
+        Files.write(Paths.get(USERS_FILE), usersData);
+
+        rs.loadData(MOVIES_FILE, USERS_FILE);
+        assertEquals(0, rs.getUsers().size());
+    }
+
+    @Test
+    void testValidateDataFailsOnDuplicateMovieId() {
+        Movie m1 = new Movie("Movie1", "M1", Arrays.asList("Action"));
+        Movie m2 = new Movie("Movie2", "M1", Arrays.asList("Drama"));
+        rs.setMovies(Arrays.asList(m1, m2));
+        rs.setUsers(Collections.emptyList());
+
+        boolean valid = rs.validateData();
+        assertFalse(valid);
+    }
+
+    @Test
+    void testValidateDataFailsOnDuplicateUserId() {
+        User u1 = new User("User1", "U1", List.of("M1"));
+        User u2 = new User("User2", "U1", List.of("M2"));
+        rs.setMovies(Collections.emptyList());
+        rs.setUsers(Arrays.asList(u1, u2));
+
+        boolean valid = rs.validateData();
+        assertFalse(valid);
+    }
+
+    @Test
+    void testGenerateRecommendationsProducesOutput() {
+        Movie m1 = new Movie("ActionMovie", "A1", Arrays.asList("Action"));
+        Movie m2 = new Movie("DramaMovie", "D1", Arrays.asList("Drama"));
+        rs.setMovies(Arrays.asList(m1, m2));
+
+        User user = new User("TestUser", "T1", List.of("A1"));
+        rs.setUsers(List.of(user));
+
+        rs.generateRecommendations();
+
+        List<String> recommended = user.getRecommendedMovies();
+        assertNotNull(recommended);
+    }
+
+    @Test
+    void testGenerateRecommendationsWithEmptyLikes() {
+        Movie m1 = new Movie("TestMovie", "M1", List.of("Comedy"));
+        User user = new User("EmptyLiker", "U1", Collections.emptyList());
+        rs.setMovies(List.of(m1));
+        rs.setUsers(List.of(user));
+
+        rs.generateRecommendations();
+        assertTrue(user.getRecommendedMovies().isEmpty());
+    }
+
+    @Test
+    void testWriteRecommendationsCreatesFile() throws IOException {
+        Movie m1 = new Movie("TestMovie", "T1", List.of("Comedy"));
+        User u1 = new User("TestUser", "U1", List.of("T1"));
+
+        rs.setMovies(List.of(m1));
+        rs.setUsers(List.of(u1));
+        rs.generateRecommendations();
+        rs.writeRecommendations(OUTPUT_FILE);
+
+        assertTrue(Files.exists(Paths.get(OUTPUT_FILE)));
+    }
+
+    @Test
+    void testWriteRecommendationsWhenValidationFails() throws IOException {
+        Movie m1 = new Movie("BadMovie", "X", List.of(""));
+        Movie m2 = new Movie("BadMovie", "X", List.of(""));
+        rs.setMovies(List.of(m1, m2));
+        rs.setUsers(Collections.emptyList());
+
+        rs.writeRecommendations(OUTPUT_FILE);
+
+        List<String> output = Files.readAllLines(Paths.get(OUTPUT_FILE));
+        assertFalse(output.isEmpty());
+        assertTrue(output.get(0).contains("ERROR"));
+    }
+
+    @Test
+    void testLoadDataWithMixedValidAndInvalidLines() throws IOException {
+        List<String> moviesData = Arrays.asList(
+                "Movie1,M1",
+                "Action",
+                "Movie2,M2",
+                "Drama",
+                "InvalidLine"
+        );
+        List<String> usersData = Arrays.asList(
+                "User1,U1",
+                "M1",
+                "User2,U2",
+                "M2",
+                "InvalidUserLine"
+        );
+        Files.write(Paths.get(MOVIES_FILE), moviesData);
+        Files.write(Paths.get(USERS_FILE), usersData);
+        rs.loadData(MOVIES_FILE, USERS_FILE);
+        assertEquals(2, rs.getMovies().size());
+        assertEquals(2, rs.getUsers().size());
     }
 }
 

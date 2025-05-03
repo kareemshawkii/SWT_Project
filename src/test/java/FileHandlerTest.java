@@ -3,6 +3,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,6 +14,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FileHandlerTest {
     private FileHandler fileHandler;
+    private static final String TEST_FILE_PATH = "testOutput.txt";
+    private static final String INVALID_PATH = "/invalid_dir/test.txt"; // Adjust based on OS
     @BeforeEach
     void setUp() {
         fileHandler = new FileHandler();
@@ -60,7 +65,38 @@ class FileHandlerTest {
         // Step 4: Assert that both are equal
         assertEquals(linesToWrite, readBack);
 
+    }
+    //branch Testing=========================kareem================================
+    @Test
+    void testReadFileWithContent() throws IOException {
+        List<String> content = Arrays.asList(" Line1 ", "Line2", "Line3");
+        Files.write(Paths.get(TEST_FILE_PATH), content);
 
+        List<String> result = fileHandler.readFile(TEST_FILE_PATH);
+
+        assertEquals(3, result.size());
+        assertEquals("Line1", result.get(0));
+    }
+
+    @Test
+    void testReadFileWithInvalidPath() {
+        List<String> result = fileHandler.readFile("non_existing_file.txt");
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testWriteFileSuccessfully() throws IOException {
+        List<String> content = Arrays.asList("Hello", "World");
+        fileHandler.writeFile(TEST_FILE_PATH, content);
+
+        List<String> lines = Files.readAllLines(Paths.get(TEST_FILE_PATH));
+        assertEquals(content, lines);
+    }
+
+    @Test
+    void testWriteFileWithInvalidPath() {
+        List<String> content = Arrays.asList("test");
+        fileHandler.writeFile(INVALID_PATH, content);
     }
 
 }
