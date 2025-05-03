@@ -136,8 +136,8 @@ public class RecommendationSystem {
                 return false;
             }
 
-            if (!Validator.validateMovieId(movie.getMovieId(), movie.getTitle(), movies)) {
-                errors.add("ERROR: Movie Id: " +movie.getMovieId() + "aren’t unique " );
+            if (!movieIds.add(movie.getMovieId())) {
+                errors.add("ERROR: Duplicate movie ID: " + movie.getMovieId());
                 return false;
             }
         }
@@ -157,10 +157,19 @@ public class RecommendationSystem {
                 errors.add("ERROR: Duplicate user ID: " + user.getUserId());
                 return false;
             }
+
+
+            for (String likedMovieId : user.getLikedMovieIds()) {
+                if (!movieIds.contains(likedMovieId)) {
+                    errors.add("ERROR: User " + user.getUserId() + " has invalid liked movie ID: " + likedMovieId);
+                    return false;
+                }
+            }
         }
 
         return true;
     }
+
 
 
     public void generateRecommendations() {

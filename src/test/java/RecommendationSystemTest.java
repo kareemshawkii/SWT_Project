@@ -23,6 +23,12 @@ public class RecommendationSystemTest {
     private static final String USERS_FILE = "src/Test/resources/users.txt";
     private static final String OUTPUT_FILE = "recommendations.txt";
 
+    private RecommendationSystem system;
+    private final String testMovieFile = "src/Test/resources/movies.txt";
+    private final String testUserFile = "src/Test/resources/users.txt";
+    private final String testOutputFile = "src/Test/resources/test_output.txt";
+
+
     /**
      * Initializes a fresh RecommendationSystem instance before each test.
      */
@@ -30,6 +36,7 @@ public class RecommendationSystemTest {
     void setUp() {
         recommendationSystem = new RecommendationSystem();
         rs = new RecommendationSystem();
+        system = new RecommendationSystem();
     }
 
     /**
@@ -43,6 +50,9 @@ public class RecommendationSystemTest {
         Files.deleteIfExists(Paths.get(MOVIES_FILE));
         Files.deleteIfExists(Paths.get(USERS_FILE));
         Files.deleteIfExists(Paths.get(OUTPUT_FILE));
+        new File(testMovieFile).delete();
+        new File(testUserFile).delete();
+        new File(testOutputFile).delete();
     }
 
     /**
@@ -359,6 +369,93 @@ public class RecommendationSystemTest {
         rs.loadData(MOVIES_FILE, USERS_FILE);
         assertEquals(2, rs.getMovies().size());
         assertEquals(2, rs.getUsers().size());
+    }
+    //============================Ahmed - Statement============================//
+
+
+    @Test
+    void loadData_ValidFiles_ShouldLoadCorrectly() throws IOException {
+        List<String> movieLines = Arrays.asList(
+                "The Matrix, M001", "Action,Sci-Fi",
+                "Inception, M002", "Action,Thriller"
+        );
+        List<String> userLines = Arrays.asList(
+                "Alice, U001", "M001",
+                "Bob, U002", "M002"
+        );
+        Files.write(new File(testMovieFile).toPath(), movieLines);
+        Files.write(new File(testUserFile).toPath(), userLines);
+
+        system.loadData(testMovieFile, testUserFile);
+
+        assertEquals(2, system.getMovies().size());
+        assertEquals(2, system.getUsers().size());
+    }
+
+    @Test
+    void validateData_ValidEntries_ShouldReturnTrue() {
+        system.loadData(
+                writeTemp(testMovieFile, "The Matrix,TM001\nAction,Sci-Fi"),
+                writeTemp(testUserFile, "Alice,12345678X\nTM001")
+        );
+        assertTrue(system.validateData());
+    }
+
+    @Test
+    void validateData_DuplicateMovieId_ShouldReturnFalse() {
+        system.loadData(
+                writeTemp(testMovieFile, "The Matrix, M001\nAction\nThe Matrix Reloaded, M001\nAction"),
+                writeTemp(testUserFile, "Alice, U001\nM001")
+        );
+        assertFalse(system.validateData());
+    }
+
+    @Test
+    void generateRecommendations_ShouldRecommendCorrectly() {
+        system.loadData(
+                writeTemp(testMovieFile, "The Matrix, M001\nAction,Sci-Fi\nInception, M002\nAction,Thriller"),
+                writeTemp(testUserFile, "Alice, U001\nM001")
+        );
+        system.generateRecommendations();
+        User user = system.getUsers().get(0);
+        assertTrue(user.getRecommendedMovies().contains("Inception"));
+    }
+
+    @Test
+    void writeRecommendations_ValidData_WritesCorrectOutput() throws IOException {
+        system.loadData(
+                writeTemp(testMovieFile, "The Matrix, TM001\nAction,Sci-Fi\nThe Inception, TI002\nAction,Thriller"),
+                writeTemp(testUserFile, "Alice, 12345678X\nTM001")
+        );
+        system.generateRecommendations();
+        system.writeRecommendations(testOutputFile);
+
+        List<String> output = Files.readAllLines(new File(testOutputFile).toPath());
+        assertEquals("Alice,12345678X", output.get(0));
+        assertTrue(output.get(1).contains("The Inception"));
+    }
+
+    @Test
+    void writeRecommendations_InvalidData_WritesErrorMessage() throws IOException {
+        system.loadData(
+                writeTemp(testMovieFile, "The Matrix, M001\nAction\nThe Matrix Reloaded, M001\nAction"),
+                writeTemp(testUserFile, "Alice, U001\nM001")
+        );
+        system.writeRecommendations(testOutputFile);
+
+        List<String> output = Files.readAllLines(new File(testOutputFile).toPath());
+        assertTrue(output.get(0).startsWith("ERROR"));
+    }
+
+    // Helper method to write content quickly
+    private String writeTemp(String filename, String content) {
+        try {
+            File file = new File(filename);
+            Files.write(file.toPath(), List.of(content.split("\n")));
+            return filename;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to write temp file: " + filename);
+        }
     }
 }
 
