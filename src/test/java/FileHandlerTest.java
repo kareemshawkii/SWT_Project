@@ -99,7 +99,6 @@ class FileHandlerTest {
         List<String> content = Arrays.asList("test");
         // This path may not work on all systems, adjust if needed
         fileHandler.writeFile(INVALID_PATH, content);
-        // No exception should crash the test
     }
 
 }
