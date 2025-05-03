@@ -457,5 +457,83 @@ public class RecommendationSystemTest {
             throw new RuntimeException("Failed to write temp file: " + filename);
         }
     }
+    //condition================================kareem=====================================
+    @Test
+    void testLoadData_MovieLineInvalidFormat() throws IOException {
+        List<String> movieData = List.of("InvalidLine");
+        Files.write(Paths.get(testMovieFile), movieData);
+        Files.write(Paths.get(testUserFile), Collections.emptyList());
+
+        rs.loadData(testMovieFile, testUserFile);
+        assertTrue(rs.getMovies().isEmpty());
+    }
+
+    @Test
+    void testLoadData_ValidMovieAndUser() throws IOException {
+        List<String> movies = List.of("Movie1,M001", "Action");
+        List<String> users = List.of("Alice,U12345678", "M001");
+        Files.write(Paths.get(testMovieFile), movies);
+        Files.write(Paths.get(testUserFile), users);
+
+        rs.loadData(testMovieFile, testUserFile);
+        assertEquals(1, rs.getMovies().size());
+        assertEquals(1, rs.getUsers().size());
+    }
+
+    @Test
+    void testValidateData_MovieTitleInvalid() {
+        Movie badMovie = new Movie("bad title", "BT123", List.of("Action"));
+        rs.setMovies(List.of(badMovie));
+        rs.setUsers(Collections.emptyList());
+
+        assertFalse(rs.validateData());
+    }
+
+    @Test
+    void testValidateData_DuplicateUserId() {
+        User u1 = new User("User One", "U12345678", List.of("M001"));
+        User u2 = new User("User Two", "U12345678", List.of("M002"));
+        rs.setMovies(Collections.emptyList());
+        rs.setUsers(List.of(u1, u2));
+
+        assertFalse(rs.validateData());
+    }
+
+    @Test
+    void testGenerateRecommendations_InvalidData() {
+        Movie movie = new Movie("Test Movie", "TM001", List.of("Genre"));
+        User user = new User("InvalidName", "U00000000", List.of("TM001"));
+        rs.setMovies(List.of(movie));
+        rs.setUsers(List.of(user));
+
+        rs.generateRecommendations();
+        assertTrue(user.getRecommendedMovies().isEmpty());
+    }
+
+    @Test
+    void testWriteRecommendations_ValidationFails() throws IOException {
+        Movie m1 = new Movie("bad movie", "BM001", List.of("Genre"));
+        rs.setMovies(List.of(m1));
+        rs.setUsers(Collections.emptyList());
+
+        rs.writeRecommendations(OUTPUT_FILE);
+        List<String> lines = Files.readAllLines(Paths.get(OUTPUT_FILE));
+        assertFalse(lines.isEmpty());
+        assertTrue(lines.get(0).startsWith("ERROR"));
+    }
+
+    @Test
+    void testWriteRecommendations_Success() throws IOException {
+        Movie m1 = new Movie("Movie A", "MA123", List.of("Comedy"));
+        User u1 = new User("Ali Hassan", "12345678X", List.of("MA123"));
+        rs.setMovies(List.of(m1));
+        rs.setUsers(List.of(u1));
+
+        rs.generateRecommendations();
+        rs.writeRecommendations(OUTPUT_FILE);
+
+        List<String> output = Files.readAllLines(Paths.get(OUTPUT_FILE));
+        assertTrue(output.contains("Ali Hassan,12345678X"));
+    }
 }
 
