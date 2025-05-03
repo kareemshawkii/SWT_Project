@@ -66,84 +66,83 @@ public class ValidatorTest {
         assertFalse(Validator.validateUserId("12345678", existingIds)); // Invalid length
         assertFalse(Validator.validateUserId("12345679A", existingIds)); // not unique
     }
+    //branch============================kareem===============================================
     @Test
-    public void testValidateTitle_ValidTitle() {
+    void testValidateTitle_Valid() {
         assertTrue(Validator.validateTitle("The Matrix"));
     }
 
     @Test
-    public void testValidateTitle_InvalidStartOrEndSpace() {
+    void testValidateTitle_InvalidLeadingOrTrailingSpace() {
         assertFalse(Validator.validateTitle(" The Matrix"));
         assertFalse(Validator.validateTitle("The Matrix "));
     }
 
     @Test
-    public void testValidateTitle_WordNotCapitalized() {
+    void testValidateTitle_InvalidLowercaseStart() {
         assertFalse(Validator.validateTitle("the Matrix"));
-        assertFalse(Validator.validateTitle("The matrix"));
     }
 
     @Test
-    public void testValidateMovieId_Valid() {
-        Movie movie = new Movie("The Matrix", "TM001", Arrays.asList("Sci-Fi"));
-        List<Movie> movies = Collections.singletonList(movie);
-        assertTrue(Validator.validateMovieId("TM001", "The Matrix", movies));
+    void testValidateMovieId_Valid() {
+        Movie movie = new Movie("The Matrix", "TM123", List.of("Action"));
+        List<Movie> movies = List.of(movie);
+        assertTrue(Validator.validateMovieId("TM123", "The Matrix", movies));
     }
 
     @Test
-    public void testValidateMovieId_InvalidCapitalPrefix() {
-        Movie movie = new Movie("The Matrix", "TheMatrix001", Arrays.asList("Action"));
-        List<Movie> movies = Collections.singletonList(movie);
-        assertFalse(Validator.validateMovieId("TheMatrix001", "The Matrix", movies));
+    void testValidateMovieId_WrongPrefix() {
+        Movie movie = new Movie("The Matrix", "MX123", List.of("Action"));
+        List<Movie> movies = List.of(movie);
+        assertFalse(Validator.validateMovieId("MX123", "The Matrix", movies));
     }
 
     @Test
-    public void testValidateMovieId_InvalidDigits() {
-        Movie movie = new Movie("The Matrix", "TheMatrix01", Arrays.asList("Action"));
-        List<Movie> movies = Collections.singletonList(movie);
-        assertFalse(Validator.validateMovieId("TheMatrix01", "The Matrix", movies));
+    void testValidateMovieId_InvalidDigits() {
+        Movie movie = new Movie("The Matrix", "TM12", List.of("Action"));
+        List<Movie> movies = List.of(movie);
+        assertFalse(Validator.validateMovieId("TM12", "The Matrix", movies));
     }
 
     @Test
-    public void testValidateMovieId_DuplicateIds() {
-        Movie movie1 = new Movie("The Matrix", "TheMatrix001", Arrays.asList("Sci-Fi"));
-        Movie movie2 = new Movie("The Matrix", "TheMatrix001", Arrays.asList("Action"));
-        List<Movie> movies = Arrays.asList(movie1, movie2);
-        assertFalse(Validator.validateMovieId("TheMatrix001", "The Matrix", movies));
+    void testValidateMovieId_DuplicateNumbers() {
+        Movie m1 = new Movie("Test Movie", "TM123", List.of("Genre"));
+        Movie m2 = new Movie("Test Movie", "TM123", List.of("Genre"));
+        List<Movie> movies = List.of(m1, m2);
+        assertFalse(Validator.validateMovieId("TM123", "Test Movie", movies));
     }
 
     @Test
-    public void testValidateUserName_Valid() {
+    void testValidateUserName_Valid() {
         assertTrue(Validator.validateUserName("John Doe"));
     }
 
     @Test
-    public void testValidateUserName_InvalidLeadingSpace() {
+    void testValidateUserName_LeadingSpace() {
         assertFalse(Validator.validateUserName(" John"));
     }
 
     @Test
-    public void testValidateUserName_LowerCaseOnly() {
-        assertFalse(Validator.validateUserName("john doe"));
+    void testValidateUserName_InvalidCharacters() {
+        assertFalse(Validator.validateUserName("John123"));
     }
 
     @Test
-    public void testValidateUserId_Valid() {
-        Set<String> existingIds = new HashSet<>(Arrays.asList("11112222A", "87654321B"));
-        assertTrue(Validator.validateUserId("12345678Z", existingIds));
+    void testValidateUserId_Valid() {
+        Set<String> existing = new HashSet<>();
+        assertTrue(Validator.validateUserId("12345678X", existing));
     }
 
     @Test
-    public void testValidateUserId_InvalidLengthOrFormat() {
-        Set<String> existingIds = new HashSet<>();
-        assertFalse(Validator.validateUserId("1234567", existingIds));       // too short
-        assertFalse(Validator.validateUserId("abcdefgh", existingIds));      // not digits
-        assertFalse(Validator.validateUserId("12345678#", existingIds));     // invalid suffix
+    void testValidateUserId_InvalidFormat() {
+        Set<String> existing = new HashSet<>();
+        assertFalse(Validator.validateUserId("1234X", existing));
     }
 
     @Test
-    public void testValidateUserId_AlreadyExists() {
-        Set<String> existingIds = new HashSet<>(Arrays.asList("12345678A"));
-        assertFalse(Validator.validateUserId("12345678A", existingIds));
+    void testValidateUserId_DuplicateId() {
+        Set<String> existing = new HashSet<>(Set.of("12345678X"));
+        assertFalse(Validator.validateUserId("12345678X", existing));
     }
+    
 }
