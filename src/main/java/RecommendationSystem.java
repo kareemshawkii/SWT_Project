@@ -6,6 +6,15 @@ public class RecommendationSystem {
 
     private List<Movie> movies = new ArrayList<>();
     private List<User> users = new ArrayList<>();
+
+    public List<String> getErrors() {
+        return errors;
+    }
+
+    public void setErrors(List<String> errors) {
+        this.errors = errors;
+    }
+
     private List<String> errors = new ArrayList<>();
     private FileHandler fileHandler = new FileHandler(); // Assuming FileHandler class exists
 
