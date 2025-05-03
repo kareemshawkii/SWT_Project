@@ -602,5 +602,6 @@ public class RecommendationSystemTest {
         List<String> lines = Files.readAllLines(Paths.get(OUTPUT_FILE));
         assertTrue(lines.get(0).startsWith("ERROR"));
     }
+
 }
 
