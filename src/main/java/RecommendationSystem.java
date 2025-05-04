@@ -60,6 +60,16 @@ public class RecommendationSystem {
             }
             String title = movieParts[0].trim();
             String movieId = movieParts[1].trim();
+            // *** ADDED CHECK: Validate movieId right after extraction ***
+            if (movieId.isEmpty()) {
+                this.errors.add("ERROR: Missing Movie ID for title '" + title + "' at line " + (i + 1));
+                // Attempt to skip the next line as it's likely the genre for the invalid movie
+                if (i + 1 < movieLines.size()) {
+                    i++;
+                }
+                continue; // Skip processing this movie further
+            }
+            // *** END OF ADDED CHECK ***
 
             if (i + 1 < movieLines.size()) {
                 String genreLine = movieLines.get(i + 1);
@@ -133,8 +143,8 @@ public class RecommendationSystem {
     public boolean validateData() {
         Set<String> movieIds = new HashSet<>();
         Set<String> userIds = new HashSet<>();
-
         for (Movie movie : movies) {
+
             if (!Validator.validateTitle(movie.getTitle())) {
                 errors.add("ERROR: Invalid movie title: " + movie.getTitle());
                 return false;

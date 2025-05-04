@@ -7,7 +7,8 @@ import java.util.regex.Pattern;
 public class Validator {
 
     public static boolean validateTitle(String title) {
-        if(title.charAt(0)==' '||title.charAt(title.length()-1)==' ') return false ;
+        if (title == null || title.isEmpty()) return false;
+        if (title.charAt(0) == ' ' || title.charAt(title.length() - 1) == ' ') return false;
         String[] words = title.trim().split(" ");
         for (String word : words) {
             if (word.isEmpty() || !Character.isUpperCase(word.charAt(0))) {
@@ -39,6 +40,10 @@ public class Validator {
     }
 
     public static boolean validateMovieId(String movieId, String title, List<Movie> movies) {
+        if (movieId == null || movieId.trim().isEmpty()) { // <--- Check is here
+            return false; // <--- Returns false if ID is null or empty
+        }
+
         StringBuilder capitalLetters = new StringBuilder();
         for (char c : title.toCharArray()) {
             if (Character.isUpperCase(c)) {
@@ -69,11 +74,13 @@ public class Validator {
     }
 
     public static boolean validateUserName(String name) {
+        if (name == null || name.isEmpty()) return false;
         if (name.startsWith(" ")) return false;
-        return name.matches("^([A-Z][a-z]*)( [A-Z][a-z]*)*$"); //  "^[A-Za-z ]+$";  [A-Za-z ]+  // Solved username bug
+        return name.matches("^([A-Z][a-z]*)( [A-Z][a-z]*)*$"); // "^[A-Za-z ]+$"; [A-Za-z ]+ // Solved username bug
     }
 
     public static boolean validateUserId(String userId, Set<String> existingIds) {
+        if (userId == null || userId.isEmpty()) return false;
         if (userId.length() != 9) return false;
         if (!userId.matches("^\\d{8}[A-Za-z]?$")) return false; // Solved user id bug
         return !existingIds.contains(userId);

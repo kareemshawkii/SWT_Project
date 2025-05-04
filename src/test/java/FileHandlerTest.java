@@ -36,19 +36,25 @@ class FileHandlerTest {
     @Test
     void readUsersFileTest() {
         List<String> expected = Arrays.asList("Hassan Ali, 12345678X", "TSR001, TDK003", "Ali Mohamed, 87654321W", "TG002");
-        assertEquals(expected, fileHandler.readFile("D://Documents//GitHub//SWT_Project//users.txt"));
+        assertEquals(expected, fileHandler.readFile("src/main/resources/users.txt"));
     }
 
     @Test
     void readRecommendationsFileTest() {
-        List<String> expected = Arrays.asList("Hassan Ali,12345678X", "The Dark Knight,The Godfather", "Ali Mohamed,87654321W", "The Dark Knight");
-        assertEquals(expected, fileHandler.readFile("D://Documents//GitHub//SWT_Project//recommendations.txt"));
+        List<String> expected = Arrays.asList(
+                "Hassan Ali,12345678X",
+                "The Godfather",
+                "Ali Mohamed,87654321W",
+                "The Shawshank Redemption,The Dark Knight"
+        );
+        assertEquals(expected, fileHandler.readFile("src/test/resources/recommendations.txt"));
     }
+
 
     @Test
     void readMoviesFileTest() {
         List<String> expected = Arrays.asList("The Shawshank Redemption, TSR001", "Drama", "The Godfather, TG002", "Crime, Drama", "The Dark Knight, TDK003", "Action, Crime, Drama");
-        assertEquals(expected, fileHandler.readFile("D://Documents//GitHub//SWT_Project//movies.txt/"));
+        assertEquals(expected, fileHandler.readFile("src/main/resources/movies.txt"));
     }
 
 

@@ -44,8 +44,8 @@ public class ValidatorTest {
         assertFalse(Validator.validateUserName(" John"));
         assertFalse(Validator.validateUserName("!John"));
         assertTrue(Validator.validateUserName("John Doe Black Berry Linus"));
-        assertTrue(Validator.validateUserName("john"));
-        assertTrue(Validator.validateUserName("john doe"));
+        assertFalse(Validator.validateUserName("john"));
+        assertFalse(Validator.validateUserName("john doe"));
         assertFalse(Validator.validateUserName("jo% @hn"));
         assertFalse(Validator.validateUserName("john%"));
         assertFalse(Validator.validateUserName("123456"));

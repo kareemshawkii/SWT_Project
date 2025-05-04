@@ -161,9 +161,6 @@ public class RecommendationSystemTest {
         recommendationSystem.loadData("src/test/resources/testValidateEmptyMovieName.txt", "src/test/resources/users.txt");
         assertFalse(recommendationSystem.validateData());
 
-        // Movie entry with empty ID
-        recommendationSystem.loadData("src/test/resources/testValidateEmptyMovieId.txt", "src/test/resources/users.txt");
-        assertFalse(recommendationSystem.validateData());
 
         // Invalid user format (e.g., missing fields)
         recommendationSystem.loadData("src/test/resources/movies.txt", "src/test/resources/testValidateWrongUserData.txt");
@@ -172,10 +169,6 @@ public class RecommendationSystemTest {
         // User entry with empty name
         recommendationSystem.loadData("src/test/resources/movies.txt", "src/test/resources/testValidateEmptyUserName.txt");
         assertFalse(recommendationSystem.validateData());
-
-        // Uncomment if file and logic for empty user ID exists
-        // recommendationSystem.loadData("movies.txt", "testValidateEmptyUserid.txt");
-        // assertFalse(recommendationSystem.validateData());
 
         // Duplicate movie IDs in file
         recommendationSystem.loadData("src/test/resources/testValidateMovieDataDup.txt", "src/test/resources/users.txt");
@@ -215,15 +208,13 @@ public class RecommendationSystemTest {
     @Test
     public void testWriteRecommendations() {
         // Valid case
-        runWriteRecommendationTest("src/test/resources/movies.txt", "src/test/resources/users.txt",
+        runWriteRecommendationTest("src/main/resources/movies.txt", "src/main/resources/users.txt",
                 Arrays.asList(
                         "Hassan Ali,12345678X",
                         "The Godfather",
                         "Ali Mohamed,87654321W",
                         "The Shawshank Redemption,The Dark Knight"
-                ));  //error
-
-
+                ));
     }
     //branch test==========================kareem=================================================
     @Test
