@@ -38,6 +38,9 @@ public class RecommendationSystem {
         this.users = users;
     }
 
+    public void setFileHandler(FileHandler fileHandler) {
+        this.fileHandler = fileHandler;
+    }
 
     // --- Load Data Method ---
     public void loadData(String moviesFile, String usersFile) {

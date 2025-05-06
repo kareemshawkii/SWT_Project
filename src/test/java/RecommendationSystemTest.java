@@ -55,21 +55,7 @@ public class RecommendationSystemTest {
         new File(testOutputFile).delete();
     }
 
-    /**
-     * Utility method to test the recommendation generation logic.
-     * @param movieFile Path to the movies file.
-     * @param userFile Path to the users file.
-     * @param expectRecommendations Whether recommendations are expected.
-     */
 
-
-    /**
-     * Tests recommendation generation under various conditions:
-     * - Valid input
-     * - Missing files
-     * - Edge cases like users with no preferences
-     * - Invalid or duplicate data
-     */
     @Test
     public void testGenerateRecommendations() {
         List<String> genres1 = Arrays.asList("Sci-Fi", "Action");
@@ -179,43 +165,101 @@ public class RecommendationSystemTest {
         assertFalse(recommendationSystem.validateData());
     }
 
-    /**
-     * Tests whether the recommendations are correctly written to a file.
-     * Verifies the output file exists and is not empty.
-     */
+    class FakeFileHandler extends FileHandler {
+        private List<String> capturedOutput = new ArrayList<>();
 
-    /**
-     * Helper method to test writing recommendations and verifying the output.
-     */
-    private void runWriteRecommendationTest(String movieFile, String userFile, List<String> expectedOutput) {
-        RecommendationSystem recommendationSystem = new RecommendationSystem();
-        FileHandler fileHandler = new FileHandler(); //nshof mock up wala la
-        String outputFile = "src/test/resources/recommendations.txt";
+        @Override
+        public void writeFile(String filePath, List<String> lines) {
+            capturedOutput = new ArrayList<>(lines);
+        }
 
-        recommendationSystem.loadData(movieFile, userFile);
-        recommendationSystem.validateData();
-        recommendationSystem.generateRecommendations();
-        recommendationSystem.writeRecommendations(outputFile);
-
-        File file = new File(outputFile);
-        assertTrue(file.exists(), "Output file should exist");
-        if (expectedOutput.isEmpty()) {
-            assertEquals(0, fileHandler.readFile(outputFile).size(), "Expected no recommendations");
-        } else {
-            assertEquals(expectedOutput, fileHandler.readFile(outputFile), "Output does not match expected recommendations");
+        public List<String> getCapturedOutput() {
+            return capturedOutput;
         }
     }
+
+
+
     @Test
     public void testWriteRecommendations() {
-        // Valid case
-        runWriteRecommendationTest("src/main/resources/movies.txt", "src/main/resources/users.txt",
-                Arrays.asList(
-                        "Hassan Ali,12345678X",
-                        "The Godfather",
-                        "Ali Mohamed,87654321W",
-                        "The Shawshank Redemption,The Dark Knight"
-                ));
+        // Movies (you can simplify or omit their genre logic for this test)
+        Movie m1 = new Movie("The Godfather", "TG001", Arrays.asList("Crime", "Drama"));
+        Movie m2 = new Movie("The Shawshank Redemption", "TSR002", Arrays.asList("Drama", "Crime"));
+        Movie m3 = new Movie("The Dark Knight", "TDK003", Arrays.asList("Action", "Crime", "Drama"));
+
+        List<Movie> movies = Arrays.asList(m1, m2, m3);
+
+        // Users (predefined recommended movies)
+        User u1 = new User("Hassan Ali", "12345678X", Arrays.asList("TDK003", "TSR002"));
+        u1.setRecommendedMovies(Arrays.asList("The Godfather"));
+
+        User u2 = new User("Ali Mohamed", "87654321W", Arrays.asList("TG001"));
+        u2.setRecommendedMovies(Arrays.asList("The Shawshank Redemption", "The Dark Knight"));
+
+        List<User> users = Arrays.asList(u1, u2);
+
+        // Recommendation System setup
+        RecommendationSystem rs = new RecommendationSystem();
+        rs.setMovies(movies);
+        rs.setUsers(users);
+
+        // Use fake file handler to capture written output
+        FakeFileHandler fakeFileHandler = new FakeFileHandler();
+        rs.setFileHandler(fakeFileHandler);
+
+        // Call writeRecommendations with dummy path
+        rs.writeRecommendations("dummy.txt");
+
+        // Expected output lines
+        List<String> expectedOutput = Arrays.asList(
+                "Hassan Ali,12345678X",
+                "The Godfather",
+                "Ali Mohamed,87654321W",
+                "The Shawshank Redemption,The Dark Knight"
+        );
+
+        // Assert that captured output matches expected
+        assertEquals(expectedOutput, fakeFileHandler.getCapturedOutput());
     }
+    @Test
+    public void testWriteRecommendationsWithNoRecommendations() {
+        // Movies
+        Movie m1 = new Movie("Inception", "I123", Arrays.asList("Sci-Fi", "Action"));
+        List<Movie> movies = Arrays.asList(m1);
+
+        // Users with no recommendations
+        User u1 = new User("Nada", "11111111A", new ArrayList<>());
+        u1.setRecommendedMovies(new ArrayList<>());
+
+        User u2 = new User("Mona", "22222222B", Arrays.asList("I123"));
+        u2.setRecommendedMovies(new ArrayList<>());
+
+        List<User> users = Arrays.asList(u1, u2);
+
+        // Set up system
+        RecommendationSystem rs = new RecommendationSystem();
+        rs.setMovies(movies);
+        rs.setUsers(users);
+
+        // Fake file handler
+        FakeFileHandler fakeFileHandler = new FakeFileHandler();
+        rs.setFileHandler(fakeFileHandler);
+
+        // Run write
+        rs.writeRecommendations("dummy.txt");
+
+        // Expected output: only user lines, no movie lines
+        List<String> expectedOutput = Arrays.asList(
+                "Nada,11111111A",
+                "",
+                "Mona,22222222B",
+                ""
+        );
+
+        assertEquals(expectedOutput, fakeFileHandler.getCapturedOutput());
+    }
+
+
     //branch test==========================kareem=================================================
     @Test
     void testLoadDataWithValidInputs() throws IOException {
