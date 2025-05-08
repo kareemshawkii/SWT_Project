@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ValidatorTest {
 
     @Test
-    public void testValidateMovieTitle() { //lessa
+    public void testValidateMovieTitle() {
         assertTrue(Validator.validateTitle("The Matrix"));
         assertFalse(Validator.validateTitle("The Matrix "));
         assertFalse(Validator.validateTitle("the matrix"));
@@ -15,26 +15,38 @@ public class ValidatorTest {
         assertFalse(Validator.validateTitle("10 Days To Lose A Man"));
         assertFalse(Validator.validateTitle("500 days of summer"));
         assertFalse(Validator.validateTitle("#1 Cheerleader Camp"));
-        assertFalse(Validator.validateTitle(" Harry Potter"));             //error --> fixed
+        assertFalse(Validator.validateTitle(" Harry Potter"));
         assertFalse(Validator.validateTitle(" "));
 
     }
 
     @Test
-    public void testValidateMovieId() { //lessa
-        //movie objects     List<Movie> movieList;
-        //add movie object to list
-        //add dup movie with same ID as before
-        //call isUnique
-        //return false if dup
-//        assertTrue(Validator.validateMovieId("TM123", "The Matrix", existingIds));
-//        existingIds.add("TM123");
-//       // assertFalse(Validator.validateMovieId("TM123", "The Matrix", existingIds));
-//        assertTrue(Validator.validateMovieId("TGW100", "The Good Wife", existingIds));
-//        assertTrue(Validator.validateMovieId("TGW100", "The Good Wife", existingIds));
-//        existingIds.add("TGW100");
-//        existingIds.add("TGW100");
-//        assertFalse(Validator.validateMovieId("TGW100", "The Good Wife", existingIds));
+    void validateMovieIdTestCases() {
+        List<Movie> emptyList = new ArrayList<>();
+        List<Movie> existingList = new ArrayList<>();
+        existingList.add(new Movie("The Matrix", "TM123", Arrays.asList("Action")));
+
+        // TC01: Valid ID
+        assertTrue(Validator.validateMovieId("TSR123", "The Shawshank Redemption", emptyList));
+
+        // TC02: Null ID
+        assertFalse(Validator.validateMovieId(null, "Inception", emptyList));
+
+        // TC03: Empty ID
+        assertFalse(Validator.validateMovieId("", "Inception", emptyList));
+
+        // TC04: Incorrect prefix
+        assertFalse(Validator.validateMovieId("INC123", "The Matrix", emptyList));
+
+        // TC05: Less than 3 digits
+        assertFalse(Validator.validateMovieId("TM12", "The Matrix", emptyList));
+
+        // TC06: More than 3 digits
+        assertFalse(Validator.validateMovieId("TM1234", "The Matrix", emptyList));
+
+        // TC07: Incorrect capital letters
+        assertFalse(Validator.validateMovieId("MTR123", "The Matrix", emptyList));
+
     }
 
     @Test

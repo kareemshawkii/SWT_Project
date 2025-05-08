@@ -11,10 +11,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for the RecommendationSystem class.
- * Covers data loading, validation, recommendation generation, and output writing.
- */
 public class RecommendationSystemTest {
 
     private RecommendationSystem recommendationSystem;
@@ -29,9 +25,6 @@ public class RecommendationSystemTest {
     private final String testOutputFile = "src/Test/resources/test_output.txt";
 
 
-    /**
-     * Initializes a fresh RecommendationSystem instance before each test.
-     */
     @BeforeEach
     void setUp() {
         recommendationSystem = new RecommendationSystem();
@@ -39,14 +32,9 @@ public class RecommendationSystemTest {
         system = new RecommendationSystem();
     }
 
-    /**
-     * Cleans up the RecommendationSystem instance after each test.
-     */
     @AfterEach
     void tearDown() throws IOException {
         recommendationSystem = null;
-        // Optionally delete the output file after tests
-        // new File("Project/testOutput.txt").delete();
         Files.deleteIfExists(Paths.get(MOVIES_FILE));
         Files.deleteIfExists(Paths.get(USERS_FILE));
         Files.deleteIfExists(Paths.get(OUTPUT_FILE));
@@ -127,14 +115,8 @@ public class RecommendationSystemTest {
         assertEquals(3, u7.getRecommendedMovies().size());
     }
 
-
-
-
-    /**
-     * Tests the validateData() method with different edge cases.
-     */
     @Test
-    public void testValidateData() { //finished
+    public void testValidateData() {
         // Valid data
         recommendationSystem.loadData("src/test/resources/movies.txt", "src/test/resources/users.txt");
         assertTrue(recommendationSystem.validateData());
