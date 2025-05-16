@@ -3,20 +3,26 @@ import org.junit.jupiter.api.*;
 import java.util.Arrays;
 import java.io.*;
 import java.util.*;
+import org.mockito.Mockito;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 
 public class RecommendationSystemIT {
 
     private RecommendationSystem recommendationSystem;
 
-
+    private FileHandler mockFileHandler;
      // Initializes a RecommendationSystem instance before each test.
 
     @BeforeEach
     void setUp() {
-
+        mockFileHandler = mock(FileHandler.class);
         recommendationSystem = new RecommendationSystem();
-
+        recommendationSystem.setFileHandler(mockFileHandler);
     }
 
      // Cleans up the RecommendationSystem instance after each test.
@@ -26,6 +32,84 @@ public class RecommendationSystemIT {
         recommendationSystem = null;
         // Optionally delete the output file after tests
         // new File("Project/testOutput.txt").delete();
+    }
+
+    // Load data
+    @Test
+    public void testLoadData_validInput_shouldParseCorrectly() {
+        List<String> movieData = List.of(
+                "Inception,I001",
+                "Sci-Fi,Thriller"
+        );
+
+        List<String> userData = List.of(
+                "Alice,U001",
+                "I001"
+        );
+
+        when(mockFileHandler.readFile("movies.txt")).thenReturn(movieData);
+        when(mockFileHandler.readFile("users.txt")).thenReturn(userData);
+
+        recommendationSystem.loadData("movies.txt", "users.txt");
+
+        assertEquals(1, recommendationSystem.getMovies().size());
+        assertEquals(1, recommendationSystem.getUsers().size());
+        assertTrue(recommendationSystem.getErrors().isEmpty());
+
+        Movie movie = recommendationSystem.getMovies().get(0);
+        assertEquals("Inception", movie.getTitle());
+        assertEquals("I001", movie.getMovieId());
+        assertEquals(List.of("Sci-Fi", "Thriller"), movie.getGenres());
+
+        User user = recommendationSystem.getUsers().get(0);
+        assertEquals("Alice", user.getName());
+        assertEquals("U001", user.getUserId());
+        assertEquals(List.of("I001"), user.getLikedMovieIds());
+    }
+
+    @Test
+    public void testLoadData_invalidMovieFormat_shouldLogError() {
+        List<String> movieData = List.of(
+                "OnlyTitleNoId"
+        );
+        when(mockFileHandler.readFile("movies.txt")).thenReturn(movieData);
+        when(mockFileHandler.readFile("users.txt")).thenReturn(List.of());
+
+        recommendationSystem.loadData("movies.txt", "users.txt");
+
+        assertEquals(1, recommendationSystem.getErrors().size());
+        assertTrue(recommendationSystem.getErrors().get(0).contains("Invalid movie line format"));
+        assertEquals(0, recommendationSystem.getMovies().size());
+    }
+
+    @Test
+    public void testLoadData_missingGenreLine_shouldLogError() {
+        List<String> movieData = List.of("Inception,I001");
+        when(mockFileHandler.readFile("movies.txt")).thenReturn(movieData);
+        when(mockFileHandler.readFile("users.txt")).thenReturn(List.of());
+
+        recommendationSystem.loadData("movies.txt", "users.txt");
+
+        assertEquals(1, recommendationSystem.getErrors().size());
+        assertTrue(recommendationSystem.getErrors().get(0).contains("Missing genre line"));
+    }
+
+    @Test
+    public void testLoadData_missingLikedMoviesLine_shouldLogError() {
+        List<String> movieData = List.of(
+                "Inception,I001",
+                "Sci-Fi"
+        );
+        List<String> userData = List.of(
+                "Bob,U002"
+        );
+        when(mockFileHandler.readFile("movies.txt")).thenReturn(movieData);
+        when(mockFileHandler.readFile("users.txt")).thenReturn(userData);
+
+        recommendationSystem.loadData("movies.txt", "users.txt");
+
+        assertEquals(1, recommendationSystem.getErrors().size());
+        assertTrue(recommendationSystem.getErrors().get(0).contains("Missing liked movies line"));
     }
 
     private void runRecommendationTest(String movieFile, String userFile, boolean expectRecommendations) {
